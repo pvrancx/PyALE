@@ -129,10 +129,9 @@ class AbstractAgent(Agent,object):
     def agent_end(self,reward):
         self.ep_rew += reward
         self.ep_steps+= 1 
-        if (self.num_eps % self.log_freq) == 0:
-            self.log_value('episode',self.num_eps)
-            self.log_value('steps',self.ep_steps)
-            self.log_value('reward',self.ep_rew)
+        self.log_value('episode',self.num_eps)
+        self.log_value('steps',self.ep_steps)
+        self.log_value('reward',self.ep_rew)
         self.num_eps+=1
 
 

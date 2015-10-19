@@ -13,7 +13,7 @@ class ALEAgent(AbstractAgent):
     Base class for ALE RL GLUE agents
     '''
     actions = None #action set to use
-    base_reward = None #reward reference, needed for normailization
+    base_reward = None #reward reference, needed for normalization
     
     def __init__(self,actions=None,agent_id=0,save_path='.'):
         super(ALEAgent,self).__init__(agent_id,save_path)

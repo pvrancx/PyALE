@@ -179,7 +179,7 @@ if __name__=="__main__":
                     help='exploration rate')
     parser.add_argument('--savepath', metavar='P', type=str, default='.',
                     help='save path')  
-    parser.add_argument('--features', metavar='F', type=str, default='RAM',
+    parser.add_argument('--features', metavar='F', type=str, default='BASIC',
                     help='features to use: RAM or BASIC')
 
     args = parser.parse_args()
