@@ -82,6 +82,8 @@ if __name__=="__main__":
                     help='save path')  
     parser.add_argument('--features', metavar='F', type=str, default='BASIC',
                     help='features to use: RAM or BASIC')
+    parser.add_argument('--actions', metavar='C',type=int, default=None, 
+                        nargs='*',help='list of allowed actions')
 
     args = parser.parse_args()
 
@@ -91,14 +93,16 @@ if __name__=="__main__":
                                      lambda_=args.lambda_,
                                      eps =args.eps,
                                      gamma=args.gamma, 
-                                     save_path=args.savepath))
+                                     save_path=args.savepath,
+                                     actions = args.actions))
     elif args.features == 'BASIC':
         AgentLoader.loadAgent(BasicALEQlearningAgent(agent_id=args.id,
                                      alpha =args.alpha,
                                      lambda_=args.lambda_,
                                      eps =args.eps,
                                      gamma=args.gamma, 
-                                     save_path=args.savepath))
+                                     save_path=args.savepath,
+                                     actions = args.actions))
     else:
         print 'unknown feature type'
     
