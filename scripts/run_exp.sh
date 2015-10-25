@@ -17,7 +17,7 @@
 #$ -pe mt 4
 #
 #set various paths
-RLDIR=$HOME/PyALE/src
+RLDIR=$HOME/Documents/Code/PyALE/src
 ALEDIR=$HOME/Documents/Projects/ALE/ale5
 LOGDIR=$HOME/Logs
 

@@ -91,6 +91,7 @@ class ALESarsaAgent(ALEAgent):
         else:
             #randomly select action with maximum value
             max_acts = acts[(values==np.max(values))]
+            #print np.max(values)
             return np.random.choice(max_acts)
             
     def update_trace(self,phi,a):
@@ -102,7 +103,7 @@ class ALESarsaAgent(ALEAgent):
             #phi is full vector of feature values
             self.trace[:,a] += self.phi
         
-        self.trace = np.clip(self.trace,0.,5.)
+       # self.trace = np.clip(self.trace,0.,5.)
         
         
     def step(self,reward,phi_ns = None):
@@ -142,7 +143,7 @@ class BasicALESarsaAgent(ALESarsaAgent):
         
     def create_projector(self):
         return BasicALEFeatures(num_tiles=np.array([14,16]),
-            background_file =  self.background )
+            background_file =  self.background,secam=True )
  
     def get_data(self,obs):
         return self.get_frame_data(obs)
