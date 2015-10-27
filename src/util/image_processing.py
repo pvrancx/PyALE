@@ -23,7 +23,22 @@ Various image processing routines to preprocess ALE frames
 '''
 
         
+'''
+Crop image by cutting specified amounts of top, bottom, left, right
 
+Inputs: 
+    image: 2D float array
+    top = 0: amount to cut from top
+    right = 0:amount to cut from right
+    bottom =0: amount to cut from bottom
+    left = 0:amount to cut from left
+Returns:
+    Copy of image, cut down by given amounts
+'''
+
+def crop_image(im,top=0,right=0,bottom=0,left=0):
+    return copy.copy(im[top:im.shape[0]-bottom,left:im.shape[1]-right])
+    
 '''
 Crop image to given shape. Cuts equal amount of borders until size is reached
 Inputs: 
@@ -33,16 +48,18 @@ Inputs:
 Returns:
     Copy of image, cut down to shape
 '''
-def crop_image(im,shape):
+
+def crop_image_to_shape(im,shape):
     #calculate difference between current shape and desired shape
-    dx, dy = im.shape[0:2] - shape
+    dx, dy = im.shape[0:2] - np.array(shape)
     assert (dx>=0) and (dy>=0), 'cropping cannot increase im size'
+    deltas = np.array([dx,dy])
     #divide cropped area equally over opposite borders
-    indx,indy= np.floor([dx,dy]/2).astype('int')
+    indx,indy= np.floor(deltas/2).astype('int')
     #check if difference is odd, need to substract extra row/column
-    remx,remy = np.remainder([dx,dy],2).astype('int')
+    remx,remy = np.remainder(deltas,2).astype('int')
     # Cropping
-    return np.array(im[(indx+remx): - indx, (indy+remy): -indy]) #new copy
+    return crop_image(im,(indx+remx),indy,indx,(indy+remy)) #new copy
     
 '''
 Resize image to given shape. Uses subsampling (with optional antialiasing)
@@ -59,19 +76,22 @@ def resize_image(im,shape, antialias = False):
     if antialias: #use PIL
         #resize image, use PIL misc.imresize gives poor results for downsizing
         new_im = Image.fromarray(im).resize(shape,Image.ANTIALIAS)
+        #convert back to numpy array
+        new_im =np.array(new_im)
+        #ANTIALIAS can create invalid pixel values
+        new_im = np.clip(new_im,0,255)
     else: #simple subsampling
-        dx,dy = np.divide(im.shape[:1],shape)
-        x_idx = np.arange(0,im.shape[0],dx)
-        y_idx = np.arange(0,im.shape[1],dy)
-        xs,ys = np.meshgrid(x_idx,y_idx)
+        xs,ys = np.meshgrid (
+            np.linspace(0,im.shape[0]-1,shape[0]).astype('uint8'),
+            np.linspace(0,im.shape[1]-1,shape[1]).astype('uint8'),
+            indexing='ij' )
+
         if len(im.shape) == 3:
-            new_im = im[xs,ys,:]
+            new_im = copy.copy(im[xs,ys,:])
         else:
-            new_im = im[xs,ys]
-    #convert back to numpy array
-    new_im =np.array(new_im)
-    #ANTIALIAS can create invalid pixel values
-    new_im = np.clip(0,255,new_im)
+            new_im = copy.copy(im[xs,ys])
+
+
     return new_im
     
 '''
