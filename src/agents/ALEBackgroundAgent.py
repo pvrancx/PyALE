@@ -21,7 +21,8 @@ from scipy.misc import imsave
 
 from rlglue.agent import AgentLoader as AgentLoader
 
-from ALEVisionAgent import ALEVisionAgent
+from ALEAgent import ALEAgent
+from util.image_processing import as_RGB
 
 import cPickle as pickle
 
@@ -31,7 +32,7 @@ import cPickle as pickle
 # keep counts of colors occuring in each pixel location
 # most common color is background for that pixel
 
-class ALEBackgroundAgent(ALEVisionAgent):
+class ALEBackgroundAgent(ALEAgent):
     
     
     acts = np.array([0,1,3,4,11,12])
@@ -77,7 +78,7 @@ class ALEBackgroundAgent(ALEVisionAgent):
             pickle.dump(background,f,-1)
             
         imsave(self.log_name+'.png',
-               self.as_RGB(background.reshape(self.im_size)))
+               as_RGB(background.reshape(self.im_size)))
     
 
 if __name__=="__main__":
@@ -85,7 +86,7 @@ if __name__=="__main__":
     try:
         opts, args = getopt.getopt(sys.argv[1:],"c:p:")
     except getopt.GetoptError:
-        print 'ALEBackgroundAgent.py -p path -c capacity'
+        print 'ALEBackgroundAgent.py -p path'
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-c':

@@ -22,7 +22,6 @@ class ALESarsaAgent(ALEAgent):
     
     def __init__(self,alpha=0.1,lambda_=0.9,gamma=.999,eps=0.05,
                  agent_id=0,save_path='.',actions=None):
-        #use full images and color mode
         super(ALESarsaAgent,self).__init__(actions,agent_id,save_path)
         
         self.eps = eps
@@ -171,7 +170,7 @@ if __name__=="__main__":
                     help='exploration rate')
     parser.add_argument('--savepath', metavar='P', type=str, default='.',
                     help='save path')  
-    parser.add_argument('--features', metavar='F', type=str, default='BASIC',
+    parser.add_argument('--features', metavar='F', type=str, default='RAM',
                     help='features to use: RAM or BASIC')
                     
     parser.add_argument('--actions', metavar='C',type=int, default=None, 
