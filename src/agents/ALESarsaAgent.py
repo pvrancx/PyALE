@@ -20,10 +20,10 @@ import numpy as np
 
 class ALESarsaAgent(ALEAgent):
     
-    def __init__(self,alpha=0.1,lambda_=0.9,gamma=.999,eps=0.05,
+    def __init__(self,actions=None,alpha=0.1,lambda_=0.9,gamma=.999,eps=0.05,
                  agent_id=0,save_path='.'):
         #use full images and color mode
-        super(ALESarsaAgent,self).__init__(None,agent_id,save_path)
+        super(ALESarsaAgent,self).__init__(actions,agent_id,save_path)
         
         self.eps = eps
         self.name='SARSA'
@@ -147,6 +147,9 @@ class BasicALESarsaAgent(ALESarsaAgent):
         else:
             #returns full binary features vector
             return self.state_projector.phi(im)
+
+    def file_name(self):
+        return self.save_path+'/'+str(self.name)+'_BASIC_'+str(self.agent_id)
     
 class RAMALESarsaAgent(ALESarsaAgent):
     def agent_init(self,taskSpec):
@@ -164,6 +167,9 @@ class RAMALESarsaAgent(ALESarsaAgent):
         else:
             #returns full binary features vector
             return self.state_projector.phi(ram)
+
+    def file_name(self):
+        return self.save_path+'/'+str(self.name)+'_RAM_'+str(self.agent_id)
         
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description='run Sarsa Agent')
@@ -181,6 +187,8 @@ if __name__=="__main__":
                     help='save path')  
     parser.add_argument('--features', metavar='F', type=str, default='BASIC',
                     help='features to use: RAM or BASIC')
+    parser.add_argument('--actions', metavar='A', type=int, nargs='+', default=None,
+                    help='actions to use, None for default')
 
     args = parser.parse_args()
 

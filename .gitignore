@@ -1,3 +1,4 @@
-logs
-roms
 *.pyc
+roms
+logs
+**/*.ipynb_checkpoints
