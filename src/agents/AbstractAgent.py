@@ -149,13 +149,10 @@ class AbstractAgent(Agent,object):
             return 'ok'
         else:
             return "I don't know how to respond to your message"
-
-    def file_name(self):
-        return self.save_path+'/'+str(self.name)+'_'+str(self.agent_id)
             
     def agent_cleanup(self):
         print 'saving log to file...'
-        name = self.file_name() + '.log'
+        name = self.save_path+'/'+str(self.name)+'_log.'+str(self.agent_id)
         with open(name,'wb') as f:
             pickle.dump(self.log,f)
         
@@ -181,7 +178,7 @@ class AbstractAgent(Agent,object):
             print self.act_limits
             self.act_range = self.act_limits[:,1] - self.act_limits[:,0] 
             self._n_int_actions = np.prod(
-                self.act_range[self._n_double_act_dims:]+1)
+                self.act_range[self._n_double_act_dims:])
             print spec
             print 'Double state variables:'
             print len(TaskSpec.getDoubleObservations())
