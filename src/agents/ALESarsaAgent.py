@@ -20,9 +20,8 @@ import numpy as np
 
 class ALESarsaAgent(ALEAgent):
     
-    def __init__(self,actions=None,alpha=0.1,lambda_=0.9,gamma=.999,eps=0.05,
-                 agent_id=0,save_path='.'):
-        #use full images and color mode
+    def __init__(self,alpha=0.1,lambda_=0.9,gamma=.999,eps=0.05,
+                 agent_id=0,save_path='.',actions=None):
         super(ALESarsaAgent,self).__init__(actions,agent_id,save_path)
         
         self.eps = eps
@@ -48,24 +47,28 @@ class ALESarsaAgent(ALEAgent):
     
     def agent_init(self,taskSpec):
         super(ALESarsaAgent,self).agent_init(taskSpec)
-        self.state_projector = BasicALEFeatures(num_tiles=np.array([14,16]),
-            background_file = '../data/space_invaders/background.pkl')
+        self.state_projector =  self.create_projector()
         self.theta = np.zeros((self.state_projector.num_features(),
                                 self.num_actions()))
         self.sparse = True
-
-    def get_phi(self,obs):
+      
+    #these methods determine how atari observations are processed
+    def create_projector(self):
         raise NotImplementedError()
-        im = self.get_frame_data(obs)#.reshape((210,160))
+        
+    def get_data(self,obs):
+        raise NotImplementedError()
+
+    #convert observation to feature vector
+    def get_phi(self,obs):
+        im = self.get_data(obs)
         if self.sparse:
             #returns only active tiles indices
             return self.state_projector.phi_idx(im)
         else:
             #returns full binary features vector
             return self.state_projector.phi(im)
-    
-    def update_alpha(self):
-        pass
+
         
     def get_value(self,phi,a,sparse=False):
         if sparse:
@@ -85,16 +88,22 @@ class ALESarsaAgent(ALEAgent):
         if np.random.rand()< self.eps:
             return np.random.choice(acts)
         else:
-            max_acts = acts[values == np.max(values)]
+            #randomly select action with maximum value
+            max_acts = acts[(values==np.max(values))]
+            #print np.max(values)
             return np.random.choice(max_acts)
             
     def update_trace(self,phi,a):
         self.trace *= self.gamma*self.lambda_
         if self.sparse:
-            self.trace[self.phi,a] += 1
-        else:      
+            #phi consists of nonzero feature indices
+            self.trace[self.phi,a] += 1.
+        else:
+            #phi is full vector of feature values
             self.trace[:,a] += self.phi
-        self.trace = np.clip(self.trace,0.,5.)
+        
+       # self.trace = np.clip(self.trace,0.,5.)
+        
         
     def step(self,reward,phi_ns = None):
         n_rew = self.normalize_reward(reward)
@@ -131,45 +140,21 @@ class BasicALESarsaAgent(ALESarsaAgent):
         super(BasicALESarsaAgent,self).__init__(**kwargs)
         self.background = bg_file
         
-    def agent_init(self,taskSpec):
-        super(BasicALESarsaAgent,self).agent_init(taskSpec)
-        self.state_projector = BasicALEFeatures(num_tiles=np.array([14,16]),
-            background_file =  self.background )
-        self.theta = np.zeros((self.state_projector.num_features(),
-                                self.num_actions()))
-        self.sparse = True
-        
-    def get_phi(self,obs):
-        im = self.get_frame_data(obs)
-        if self.sparse:
-            #returns only active tiles indices
-            return self.state_projector.phi_idx(im)
-        else:
-            #returns full binary features vector
-            return self.state_projector.phi(im)
+    def create_projector(self):
+        return BasicALEFeatures(num_tiles=np.array([14,16]),
+            background_file =  self.background,secam=True )
+ 
+    def get_data(self,obs):
+        return self.get_frame_data(obs)
 
-    def file_name(self):
-        return self.save_path+'/'+str(self.name)+'_BASIC_'+str(self.agent_id)
     
 class RAMALESarsaAgent(ALESarsaAgent):
-    def agent_init(self,taskSpec):
-        super(RAMALESarsaAgent,self).agent_init(taskSpec)
-        self.state_projector = RAMALEFeatures()
-        self.theta = np.zeros((self.state_projector.num_features(),
-                                self.num_actions()))
-        self.sparse = True
+    def create_projector(self):
+        return RAMALEFeatures()
         
-    def get_phi(self,obs):
-        ram = self.get_ram_data(obs)
-        if self.sparse:
-            #returns only active tiles indices
-            return self.state_projector.phi_idx(ram)
-        else:
-            #returns full binary features vector
-            return self.state_projector.phi(ram)
+    def get_data(self,obs):
+        return self.get_ram_data(obs)
 
-    def file_name(self):
-        return self.save_path+'/'+str(self.name)+'_RAM_'+str(self.agent_id)
         
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description='run Sarsa Agent')
@@ -185,12 +170,17 @@ if __name__=="__main__":
                     help='exploration rate')
     parser.add_argument('--savepath', metavar='P', type=str, default='.',
                     help='save path')  
-    parser.add_argument('--features', metavar='F', type=str, default='BASIC',
+    parser.add_argument('--features', metavar='F', type=str, default='RAM',
                     help='features to use: RAM or BASIC')
-    parser.add_argument('--actions', metavar='A', type=int, nargs='+', default=None,
-                    help='actions to use, None for default')
+                    
+    parser.add_argument('--actions', metavar='C',type=int, default=None, 
+                        nargs='*',help='list of allowed actions')
 
     args = parser.parse_args()
+    
+    act = None
+    if not (args.actions is None):
+        act = np.array(args.actions)
 
     if args.features == 'RAM':
         AgentLoader.loadAgent(RAMALESarsaAgent(agent_id=args.id,
@@ -198,14 +188,16 @@ if __name__=="__main__":
                                      lambda_=args.lambda_,
                                      eps =args.eps,
                                      gamma=args.gamma, 
-                                     save_path=args.savepath))
+                                     save_path=args.savepath,
+                                     actions = act))
     elif args.features == 'BASIC':
         AgentLoader.loadAgent(BasicALESarsaAgent(agent_id=args.id,
                                      alpha =args.alpha,
                                      lambda_=args.lambda_,
                                      eps =args.eps,
                                      gamma=args.gamma, 
-                                     save_path=args.savepath))
+                                     save_path=args.savepath,
+                                     actions = act))
     else:
         print 'unknown feature type'
     

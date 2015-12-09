@@ -1,0 +1,16 @@
+A.L.E: Arcade Learning Environment (version 0.5.0)
+[Powered by Stella]
+Use -help for help screen.
+Warning: couldn't load settings file: ./ale.cfg
+Game console created:
+  ROM file:  /home/ruben/PyALE/scripts/../roms/space_invaders.bin
+  Cart Name: Space Invaders (1978) (Atari) [!]
+  Cart MD5:  72ffbef6504b75e69ee1045af9075f66
+  Display Format:  AUTO-DETECT ==> NTSC
+  ROM Size:        4096
+  Bankswitch Type: AUTO-DETECT ==> 4K
+
+Running ROM file...
+Random seed is 0
+Game will be controlled through RL-Glue.
+Initializing ALE RL-Glue ...
