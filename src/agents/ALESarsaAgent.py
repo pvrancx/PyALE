@@ -147,6 +147,8 @@ class BasicALESarsaAgent(ALESarsaAgent):
     def get_data(self,obs):
         return self.get_frame_data(obs)
 
+    def file_name(self):
+        return self.save_path+'/'+str(self.name)+'_BASIC_'+str(self.agent_id)
     
 class RAMALESarsaAgent(ALESarsaAgent):
     def create_projector(self):
@@ -155,6 +157,8 @@ class RAMALESarsaAgent(ALESarsaAgent):
     def get_data(self,obs):
         return self.get_ram_data(obs)
 
+    def file_name(self):
+        return self.save_path+'/'+str(self.name)+'_RAM_'+str(self.agent_id)
         
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description='run Sarsa Agent')
