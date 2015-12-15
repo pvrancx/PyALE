@@ -21,10 +21,15 @@ echo "Writing logs to ${LOGDIR}"
 
 ####### Other Settings ########
 export PYTHONPATH=$RLDIR:$PYTHONPATH
-# RLGlue keeps reporting negative port numbers... but it works, and that's what counts, right?
-export RLGLUE_PORT=`python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()'`
+# This one didn't work. Maybe the socket didn't close in time? RLGlue refused to take this port
+# export RLGLUE_PORT=`python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()'`
+
+# Find an open port starting from 4096
+for port in $(seq 4096 65000); do echo -ne "\035" | telnet 127.0.0.1 $port > /dev/null 2>&1; [ $? -eq 1 ] && export RLGLUE_PORT=$port && break; done
 export PYTHONUNBUFFERED="YEAP"
 ###############################
+
+echo "Found RLGlue port $RLGLUE_PORT"
 
 
 mkdir -p "$LOGDIR/$EXP_NAME"
