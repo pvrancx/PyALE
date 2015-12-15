@@ -5,7 +5,7 @@ BASEDIR="${SCRIPTDIR}/.."
 RLDIR="${BASEDIR}/src"
 LOGDIR="${BASEDIR}/logs"
 ROMDIR="${BASEDIR}/roms"
-PYTHON="$HOME/anaconda/bin/python"
+PYTHON=${PYTHON:-"$HOME/anaconda/bin/python"}
 
 #Experimental configuration
 EXP_NAME="sarsa_RAM"
@@ -16,6 +16,7 @@ AGENT_OPTIONS='--eps 0.05 --lambda 0.5 --alpha 0.1 --features RAM --actions 0 1 
 ALE_OPTIONS="-game_controller rlglue  -frame_skip 30 -repeat_action_probability 0.0"
 GAME="space_invaders.bin"
 
+echo "Using python binary ${PYTHON}"
 echo "Writing logs to ${LOGDIR}"
 
 ####### Other Settings ########
