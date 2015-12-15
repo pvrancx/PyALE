@@ -3,7 +3,7 @@
 SCRIPTDIR="$(cd "$(dirname "$0")" && pwd)"
 BASEDIR="${SCRIPTDIR}/.."
 RLDIR="${BASEDIR}/src"
-LOGDIR="${BASEDIR}/logs"
+LOGDIR="${BASEDIR}/logs_ram"
 ROMDIR="${BASEDIR}/roms"
 PYTHON="$HOME/anaconda/bin/python"
 
