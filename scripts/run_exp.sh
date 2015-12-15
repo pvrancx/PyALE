@@ -21,9 +21,11 @@ echo "Writing logs to ${LOGDIR}"
 
 ####### Other Settings ########
 export PYTHONPATH=$RLDIR:$PYTHONPATH
+# RLGlue keeps reporting negative port numbers... but it works, and that's what counts, right?
 export RLGLUE_PORT=`python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()'`
 export PYTHONUNBUFFERED="YEAP"
 ###############################
+
 
 mkdir -p "$LOGDIR/$EXP_NAME"
 # If anything goes wrong or script is killed, kill all subprocesses too
