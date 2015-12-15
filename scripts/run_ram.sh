@@ -34,7 +34,10 @@ echo "Found RLGlue port $RLGLUE_PORT"
 
 mkdir -p "$LOGDIR/$EXP_NAME"
 # If anything goes wrong or script is killed, kill all subprocesses too
-# trap "kill 0" SIGINT SIGTERM
+# Kills background jobs only. All the jobs below are background jobs.
+trap 'kill $(jobs -p)' EXIT
+# More elaborate. Kill thoroughly.
+# trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
 
 cd $RLDIR
 #start rlglue
