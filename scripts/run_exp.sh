@@ -5,7 +5,7 @@ BASEDIR="${SCRIPTDIR}/.."
 RLDIR="${BASEDIR}/src"
 LOGDIR="${BASEDIR}/logs"
 ROMDIR="${BASEDIR}/roms"
-PYTHON=${PYTHON:-"$HOME/anaconda/bin/python"}
+PYTHON=${PYTHON:-"python"}
 
 #Experimental configuration
 EXP_NAME="sarsa_RAM"
