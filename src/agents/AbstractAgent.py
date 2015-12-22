@@ -151,11 +151,11 @@ class AbstractAgent(Agent,object):
             return "I don't know how to respond to your message"
 
     def file_name(self):
-        return self.save_path+'/'+str(self.name)+'_'+str(self.agent_id)
-            
+        return str(self.name)+'_'+str(self.agent_id)
+
     def agent_cleanup(self):
         print 'saving log to file...'
-        name = self.file_name() + '.log'
+        name = '/'.join((self.save_path, self.file_name() + '.log'))
         with open(name,'wb') as f:
             pickle.dump(self.log,f)
         
