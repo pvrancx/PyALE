@@ -15,7 +15,8 @@ class ALEAgent(AbstractAgent):
     actions = None #action set to use
     base_reward = None #reward reference, needed for normalization
     
-    def __init__(self,actions=None,agent_id=0,save_path='.'):
+    def __init__(self,rng=np.random.RandomState(),actions=None,agent_id=0,
+                 save_path='.'):
         super(ALEAgent,self).__init__(agent_id,save_path)
         if actions is None:
             self.actions = np.arange(18) #18 buttons

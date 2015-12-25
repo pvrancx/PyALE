@@ -73,7 +73,7 @@ class TransitionTable(object):
             
 
 class ALEReplayAgent(RAMALESarsaAgent):
-    def __init__(self, random_seed, replay_memory, replay_frequency, replay_times,
+    def __init__(self, rng, replay_memory, replay_frequency, replay_times,
                  replay_size, **kwargs):
         super(ALEReplayAgent,self).__init__(**kwargs)
         self.name = 'replaySARSA'
@@ -190,6 +190,7 @@ if __name__=="__main__":
     if not (args.actions is None):
         act = np.array(args.actions)
 
+    rng = np.random.RandomState(args.random_seed)  
 
     AgentLoader.loadAgent(ALEReplayAgent(agent_id=args.id,
                                     alpha =args.alpha,
@@ -198,6 +199,8 @@ if __name__=="__main__":
                                     gamma=args.gamma, 
                                     save_path=args.savepath,
                                     actions = act,
+                                    rng = rng,
+                                    no_traces = no_traces,
                                     random_seed = args.random_seed,
                                     replay_memory = args.replay_memory,
                                     replay_frequency = args.replay_frequency,

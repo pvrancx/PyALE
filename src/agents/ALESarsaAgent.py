@@ -20,9 +20,9 @@ import numpy as np
 
 class ALESarsaAgent(ALEAgent):
     
-    def __init__(self,alpha=0.1,lambda_=0.9,gamma=.999,eps=0.05,
-                 agent_id=0,save_path='.',actions=None):
-        super(ALESarsaAgent,self).__init__(actions,agent_id,save_path)
+    def __init__(self,rng=np.random.RandomState(),alpha=0.1,lambda_=0.9,gamma=.999,eps=0.05,
+                 agent_id=0,save_path='.',actions=None,no_traces=False):
+        super(ALESarsaAgent,self).__init__(rng,actions,agent_id,save_path)
         
         self.eps = eps
         self.name='SARSA'
@@ -30,6 +30,7 @@ class ALESarsaAgent(ALEAgent):
         self.alpha = alpha
         self.lambda_ = lambda_
         self.gamma = gamma
+        self.no_traces = no_traces
 
     def agent_start(self,observation):
         super(ALESarsaAgent,self).agent_start(observation)
@@ -183,10 +184,10 @@ if __name__=="__main__":
                     help='save path')  
     parser.add_argument('--features', metavar='F', type=str, default='RAM',
                     help='features to use: RAM or BASIC')
-    parser.add_argument('--no-traces', dest='no_traces', type=bool,
-                        default=False, help='')
     parser.add_argument('--actions', metavar='C',type=int, default=None, 
                         nargs='*',help='list of allowed actions')
+    parser.add_argument('--no-traces', dest='no_traces', type=bool,
+                        default=False, help='')
 
     args = parser.parse_args()
     
