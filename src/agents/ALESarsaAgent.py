@@ -36,13 +36,13 @@ class ALESarsaAgent(ALEAgent):
         #reset trace
         self.trace = np.zeros_like(self.theta)
         #action selection
-        phi = self.get_phi(observation)
-        vals = self.get_all_values(phi,self.sparse)
-        a = self.select_action(vals)
+        phi_ns = self.get_phi(observation)
+        vals = self.get_all_values(phi_ns,self.sparse)
+        action_idx = self.select_action(vals)
         #store state and action
-        self.phi = phi
-        self.a = a
-        return self.create_action(self.actions[a])
+        self.last_phi = phi_ns
+        self.last_action = action_idx
+        return self.create_action(self.actions[action_idx])
         
     
     def agent_init(self,taskSpec):
@@ -97,25 +97,27 @@ class ALESarsaAgent(ALEAgent):
         self.trace *= self.gamma*self.lambda_
         if self.sparse:
             #phi consists of nonzero feature indices
-            self.trace[self.phi,a] += 1.
+            self.trace[self.last_phi,a] += 1.
         else:
             #phi is full vector of feature values
-            self.trace[:,a] += self.phi
+            self.trace[:,a] += self.last_phi
         
        # self.trace = np.clip(self.trace,0.,5.)
         
         
     def step(self,reward,phi_ns = None):
+        # phi_ns can be None in case of agent_end, since you only get a
+        # reward for your last action
         n_rew = self.normalize_reward(reward)
-        self.update_trace(self.phi,self.a)
-        delta = n_rew - self.get_value(self.phi,self.a,self.sparse)
+        self.update_trace(self.last_phi,self.last_action)
+        delta = n_rew - self.get_value(self.last_phi,self.last_action,self.sparse)
         a_ns = None
         if not (phi_ns is None):
             ns_values = self.get_all_values(phi_ns,self.sparse)
             a_ns = self.select_action(ns_values)
             delta += self.gamma*ns_values[a_ns]
         #normalize alpha with nr of active features
-        alpha = self.alpha / float(np.sum(self.phi!=0.))
+        alpha = self.alpha / float(np.sum(self.last_phi!=0.))
         self.theta+= alpha*delta*self.trace
         return a_ns  #a_ns is action index (not action value)
 
@@ -124,8 +126,8 @@ class ALESarsaAgent(ALEAgent):
         phi_ns = self.get_phi(observation)
         a_ns = self.step(reward,phi_ns)
         #log state data
-        self.phi = phi_ns
-        self.a = a_ns 
+        self.last_phi = phi_ns
+        self.last_action = a_ns 
         
         return self.create_action(self.actions[a_ns])#create RLGLUE action
         
@@ -142,7 +144,7 @@ class BasicALESarsaAgent(ALESarsaAgent):
         
     def create_projector(self):
         return BasicALEFeatures(num_tiles=np.array([14,16]),
-            background_file =  self.background,secam=True )
+            background_file = self.background, secam=True )
  
     def get_data(self,obs):
         return self.get_frame_data(obs)
