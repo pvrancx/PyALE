@@ -1,6 +1,7 @@
 import numpy as np
 import copy
 
+from util.ALEFeatures import BasicALEFeatures,RAMALEFeatures
 from agents.ALESarsaAgent import ALESarsaAgent, RAMALESarsaAgent
 
 class TransitionTable(object):
@@ -19,7 +20,6 @@ class TransitionTable(object):
         self.top = 0    # Points to free or at least usable index
         self.size = 0   # Will start wrapping once max_steps == size
 
-
     def add(self, state, action, reward, terminal):
         self.states[self.top] = state
         self.actions[self.top] = action
@@ -31,7 +31,6 @@ class TransitionTable(object):
         else:
             self.size += 1
         self.top = (self.top + 1) % self.max_steps
-
 
     def __len__(self):
         return self.size
@@ -73,9 +72,8 @@ class TransitionTable(object):
         return states, actions, rewards, next_states, next_actions
             
 
-
 class ALEReplayAgent(RAMALESarsaAgent):
-    def __init__(self, replay_memory, replay_frequency, replay_times,
+    def __init__(self, random_seed, replay_memory, replay_frequency, replay_times,
                  replay_size, **kwargs):
         super(ALEReplayAgent,self).__init__(**kwargs)
         self.name = 'replaySARSA'
@@ -84,8 +82,69 @@ class ALEReplayAgent(RAMALESarsaAgent):
         self.replay_times = replay_times
         self.replay_size = replay_size
 
-    def step(self, reward):
-        pass
+        self.rng = np.random.RandomState(random_seed)  
+        self.total_steps = 0
+
+        # Don't use this for now
+        # self.trace = None
+
+    def agent_init(self, task_spec):
+        super(ALEReplayAgent,self).agent_init(task_spec)
+        self.transitions = TransitionTable(self.replay_memory,
+                                           self.state_projector.num_features())
+        self.total_steps = 0
+
+    def agent_start(self, observation):
+        super(ALEReplayAgent,self).agent_start(observation)
+        # self.trace = None
+
+    def step(self, reward, phi_ns=None):
+        # The reward is from previous state-action
+        # TODO figure out if traces are useful in this context
+        self.update_trace(self.last_phi, self.last_action)
+        # Add sample to the transition database
+        terminal = phi_ns is None
+        self.transitions.add(self.last_phi, self.last_action, reward, terminal)
+
+        self.total_steps += 1
+        # Work some magic every so often
+        if self.replay_frequency != 0 and self.total_steps % self.replay_frequency == 0:
+            self.replay()
+
+        action_idx = None
+        if not phi_ns is None:
+            ns_values = self.get_all_values(phi_ns,self.sparse)
+            action_idx = self.select_action(ns_values)
+        return action_idx
+
+    def agent_end(self, reward):
+        super(ALEReplayAgent, self).agent_end(reward)
+        if self.replay_frequency == 0:
+            self.replay()
+
+    def replay(self):
+        """ SARSA-Replay-Samples """
+        samples = self.transitions.sample(self.replay_size if not
+                                         self.replay_size is None 
+                                         else len(self.transitions))
+        repeats = 1 if not self.replay_size is None else self.replay_times 
+
+        for _ in xrange(repeats):
+            for i in xrange(len(samples)):
+                state, action, reward, next_state, next_action = samples[i]
+                n_rew = self.normalize_reward(reward)
+                delta = n_rew - self.get_value(state, action, self.sparse)
+                ns_values = self.get_all_values(,self.sparse)
+                # Here's the difference with Q-learning: next_action is used
+                delta += self.gamma*ns_values[next_action]
+                # Normalize alpha with # of active features
+                alpha = self.alpha / float(np.sum(state!=0.))
+                # TODO I might be missing out on something, compare formula
+                # Maybe trace made up for the fact that a factor is missing
+                self.theta += alpha * delta * self.trace
+            
+    def create_projector(self):
+        return RAMALEFeatures()
 
 
 if __name__=="__main__":
@@ -108,6 +167,8 @@ if __name__=="__main__":
                         nargs='*',help='list of allowed actions')
 
     ### Replay parameters ###
+    parser.add_argument('--random_seed', metavar='Z', type=int,
+                        default=None, help='Seed for random number generation')
     parser.add_argument('--replay_memory', metavar='M', type=int, 
                         default=10000, help='replay memory size')
     parser.add_argument('--replay_frequency', metavar='R', type=int,
@@ -116,9 +177,26 @@ if __name__=="__main__":
     parser.add_argument('--replay_times', metavar='N', type=int,
                         default=3, help='times to replay the database (N); ' +
                         + 'useless if --replay_size is specified')
-    parser.add_argument('--replay_size', metavar='S', type=int, default=0,
-                        help='amount of replays; if 0, replay_times*memory_size'
-                        + ' is used')
+    parser.add_argument('--replay_size', metavar='S', type=int, default=None,
+                        help='amount of replayed transitions; if unspecified, ' + 
+                        'replay_times*memory_size is used')
 
     args = parser.parse_args()
 
+    act = None
+    if not (args.actions is None):
+        act = np.array(args.actions)
+
+
+    AgentLoader.loadAgent(ALEReplayAgent(agent_id=args.id,
+                                    alpha =args.alpha,
+                                    lambda_=args.lambda_,
+                                    eps =args.eps,
+                                    gamma=args.gamma, 
+                                    save_path=args.savepath,
+                                    actions = act,
+                                    random_seed = args.random_seed,
+                                    replay_memory = args.replay_memory,
+                                    replay_frequency = args.replay_frequency,
+                                    replay_times = args.replay_times,
+                                    replay_size = args.replay_size))
