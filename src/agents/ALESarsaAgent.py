@@ -34,7 +34,10 @@ class ALESarsaAgent(ALEAgent):
     def agent_start(self,observation):
         super(ALESarsaAgent,self).agent_start(observation)
         #reset trace
-        self.trace = np.zeros_like(self.theta)
+        if self.no_traces: # If all traces are 1, nothing happens
+            self.trace = np.ones_like(self.theta)
+        else: 
+            self.trace = np.zeros_like(self.theta)
         #action selection
         phi_ns = self.get_phi(observation)
         vals = self.get_all_values(phi_ns,self.sparse)
@@ -94,6 +97,8 @@ class ALESarsaAgent(ALEAgent):
             return np.random.choice(max_acts)
             
     def update_trace(self,phi,a):
+        if self.no_traces:
+            return
         self.trace *= self.gamma*self.lambda_
         if self.sparse:
             #phi consists of nonzero feature indices
@@ -178,7 +183,8 @@ if __name__=="__main__":
                     help='save path')  
     parser.add_argument('--features', metavar='F', type=str, default='RAM',
                     help='features to use: RAM or BASIC')
-                    
+    parser.add_argument('--no-traces', dest='no_traces', type=bool,
+                        default=False, help='')
     parser.add_argument('--actions', metavar='C',type=int, default=None, 
                         nargs='*',help='list of allowed actions')
 

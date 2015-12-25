@@ -148,7 +148,8 @@ class ALEReplayAgent(RAMALESarsaAgent):
 
 
 if __name__=="__main__":
-    parser = argparse.ArgumentParser(description='run Sarsa Agent')
+    parser = argparse.ArgumentParser(description='run Sarsa Replay Agent')
+    # TODO delegate argument parsing to other entity
 
     ### SARSA parameters ###
     parser.add_argument('--id', metavar='I', type=int, help='agent id',
@@ -163,6 +164,8 @@ if __name__=="__main__":
                     help='exploration rate')
     parser.add_argument('--savepath', metavar='P', type=str, default='.',
                     help='save path')  
+    parser.add_argument('--no-traces', dest='no_traces', type=bool,
+                        default=False, help='')
     parser.add_argument('--actions', metavar='C',type=int, default=None, 
                         nargs='*',help='list of allowed actions')
 
