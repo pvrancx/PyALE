@@ -182,8 +182,10 @@ if __name__=="__main__":
                     help='features to use: RAM or BASIC')
     parser.add_argument('--actions', metavar='C',type=int, default=None, 
                         nargs='*',help='list of allowed actions')
-    parser.add_argument('--no-traces', dest='no_traces', type=bool,
-                        default=False, help='')
+    parser.add_argument('--disable-traces', dest='no_traces', action='store_true', help='')
+    # parser.add_argument('--enable-traces', dest='no_traces', action='store_false', help='')
+    parser.set_defaults(no_traces=False)
+
 
     args = parser.parse_args()
     

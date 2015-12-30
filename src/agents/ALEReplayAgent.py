@@ -25,7 +25,7 @@ class TransitionTable(object):
         if sparse:
             # In case of sparsity, arrays are of inequal length. 
             # Just pad the phis. That's easiest.
-            self.state_lengths = np.zeros(max_steps, dtype=np.uint8)
+            self.state_lengths = np.zeros(max_steps, dtype=np.uint32)
         self.states = np.zeros((max_steps, num_features), dtype=np.uint8)
         self.actions = np.zeros(max_steps, dtype=np.uint8) # actually indices
         self.rewards = np.zeros(max_steps, dtype=np.float64)
@@ -37,7 +37,6 @@ class TransitionTable(object):
 
     def add(self, state, action, reward, terminal):
         if self.sparse:
-            print state.size
             self.state_lengths[self.top] = state.size
             state = np.pad(state, (0, self.num_features - state.size),
                                   mode='constant')
@@ -109,7 +108,6 @@ class ALEReplayAgent(RAMALESarsaAgent):
         # self.trace = None
 
     def agent_init(self, task_spec):
-        print 'agent init'
         super(ALEReplayAgent,self).agent_init(task_spec)
         self.transitions = TransitionTable(self.replay_memory,
                                            self.state_projector.num_features(),
@@ -117,7 +115,6 @@ class ALEReplayAgent(RAMALESarsaAgent):
         self.total_steps = 0
 
     def agent_start(self, observation):
-        print 'agent start'
         return super(ALEReplayAgent,self).agent_start(observation)
         # self.trace = None
 
@@ -141,14 +138,12 @@ class ALEReplayAgent(RAMALESarsaAgent):
         return action_idx
 
     def agent_end(self, reward):
-        print 'agent end'
         super(ALEReplayAgent, self).agent_end(reward)
         if self.replay_frequency == 0:
             self.replay()
 
     def replay(self):
         """ SARSA-Replay-Samples """
-        print 'replay'
         sample_size = self.replay_size if not self.replay_size is None else len(self.transitions)
         samples = self.transitions.sample(sample_size)
         states, actions, rewards, next_states, next_actions = samples
@@ -160,8 +155,6 @@ class ALEReplayAgent(RAMALESarsaAgent):
                     actions[i], rewards[i], next_states[i], next_actions[i]
                 n_rew = self.normalize_reward(reward)
                 # assert np.unique(state), 'state contains duplicate values'
-                print state
-                print action
                 delta = n_rew - self.get_value(state, action, self.sparse)
                 assert not np.any(np.isnan(delta), np.isinf(delta)), \
                         'delta is nan or infinite: %s' % str(delta)
@@ -172,7 +165,6 @@ class ALEReplayAgent(RAMALESarsaAgent):
                 alpha = self.alpha / float(np.sum(state!=0.))
                 # TODO I might be missing out on something, compare formula
                 # Maybe trace made up for the fact that a factor is missing
-                print delta
                 self.theta += alpha * delta * self.trace
             
     def create_projector(self):
