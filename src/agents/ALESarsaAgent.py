@@ -2,21 +2,18 @@
 """
 Created on Tue Mar 31 20:03:10 2015
 
-@author: pvrancx
+@author: pvrancx, Ruben Vereecken
 """
-
+import argparse
+import copy
 
 from rlglue.agent import AgentLoader as AgentLoader
-
-
-
-import argparse
 
 from util.ALEFeatures import BasicALEFeatures,RAMALEFeatures
 from agents.ALEAgent import ALEAgent
 
-
 import numpy as np
+
 
 class ALESarsaAgent(ALEAgent):
     
@@ -44,14 +41,15 @@ class ALESarsaAgent(ALEAgent):
         vals = self.get_all_values(phi_ns,self.sparse)
         action_idx = self.select_action(vals)
         #store state and action
-        self.last_phi = phi_ns
-        self.last_action = action_idx
+        self.last_phi = copy.deepcopy(phi_ns)
+        self.last_action = copy.deepcopy(action_idx)
         return self.create_action(self.actions[action_idx])
         
     
     def agent_init(self,taskSpec):
         super(ALESarsaAgent,self).agent_init(taskSpec)
         self.state_projector =  self.create_projector()
+        print 'Using {} features'.format(self.state_projector.num_features())
         self.theta = np.zeros((self.state_projector.num_features(),
                                 self.num_actions()))
         self.sparse = True
@@ -132,12 +130,10 @@ class ALESarsaAgent(ALEAgent):
         phi_ns = self.get_phi(observation)
         a_ns = self.step(reward,phi_ns)
         #log state data
-        self.last_phi = phi_ns
-        self.last_action = a_ns 
+        self.last_phi = copy.deepcopy(phi_ns)
+        self.last_action = copy.deepcopy(a_ns)
         
         return self.create_action(self.actions[a_ns])#create RLGLUE action
-        
-        
              
     def agent_end(self,reward):
         super(ALESarsaAgent,self).agent_end(reward)

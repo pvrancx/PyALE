@@ -13,8 +13,8 @@ EXPERIMENT="exp/generic_experiment.py"
 EXPERIMENT_OPTIONS="--maxsteps 2000  --numeps 5 --numtrials 2"
 AGENT="agents/ALEReplayAgent.py"
 AGENT_OPTIONS='--eps 0.05 --lambda 0.5 --alpha 0.1 --actions 0 1 3 4'
-AGENT_REPLAY_OPTIONS="--random_seed=${RANDOM_SEED} --replay_memory=1000000
---replay_times=3"
+AGENT_REPLAY_OPTIONS="--random_seed=${RANDOM_SEED} --replay_memory=100
+--replay_times=3 --replay_frequency=100"
 ALE_OPTIONS="-game_controller rlglue  -frame_skip 30 -repeat_action_probability
 0.0 -random_seed ${RANDOM_SEED}"
 GAME="space_invaders"

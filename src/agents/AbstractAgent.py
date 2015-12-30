@@ -63,18 +63,17 @@ class AbstractAgent(Agent,object):
     '''
         Turns RLGlue observation into state representation (single double array)
     '''
-    def get_state(self,obs):
-        self.last_observation=copy.deepcopy(obs)
-        state = []
-        if self.double_dims()>0:
-            state.append(obs.doubleArray)
-        if self.int_dims()>0:
-            state.append(obs.intArray)
-        self.last_state=np.array(state).flatten()
-        return self.last_state
+    # def get_state(self,obs):
+    #     self.last_observation=copy.deepcopy(obs)
+    #     state = []
+    #     if self.double_dims()>0:
+    #         state.append(obs.doubleArray)
+    #     if self.int_dims()>0:
+    #         state.append(obs.intArray)
+    #     self.last_state=np.array(state).flatten()
+    #     return self.last_state
         
     def create_action(self,act):
-        self.last_act=act
         if np.isscalar(act):
             act = np.array([act])
         assert (act.size == self.action_dims()),'illegal action dimension'
@@ -183,16 +182,16 @@ class AbstractAgent(Agent,object):
             self._n_int_actions = np.prod(
                 self.act_range[self._n_double_act_dims:])
             print spec
-            print 'Double state variables:'
-            print len(TaskSpec.getDoubleObservations())
-            print 'Integer state variables:'
-            print len(TaskSpec.getIntObservations())            
-            print 'Double Actions dimensions:'
-            print self.double_action_dims()
-            print 'Integer Action dimensions:'
-            print self.int_action_dims()
-            print '#number of Integer Actions'
-            print self.num_actions()
+            # print 'Double state variables:'
+            # print len(TaskSpec.getDoubleObservations())
+            # print 'Integer state variables:'
+            # print len(TaskSpec.getIntObservations())            
+            # print 'Double Actions dimensions:'
+            # print self.double_action_dims()
+            # print 'Integer Action dimensions:'
+            # print self.int_action_dims()
+            # print '#number of Integer Actions'
+            # print self.num_actions()
         else:
             print "Task Spec could not be parsed: "+spec
             

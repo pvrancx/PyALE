@@ -24,6 +24,7 @@ class ALEAgent(AbstractAgent):
             assert np.all(np.logical_and(actions>=0,actions<18)), \
                 'invalid action'
             self.actions = actions
+        self.rng = rng
             
     
     '''
@@ -67,9 +68,6 @@ class ALEAgent(AbstractAgent):
     
     def agent_init(self,taskspec):
         super(ALEAgent,self).agent_init(taskspec)
-#        if self.actions is None:
-#            #full ALE action set
-#            self.actions = np.arange(18)
         
         #change default ALE task, no ply2 act
         self._n_int_actions = len(self.actions)
