@@ -24,8 +24,6 @@ echo "Found RLGlue port $RLGLUE_PORT"
 export PYTHONUNBUFFERED="YEAP"
 ###############################
 
-mkdir -p "$LOGDIR/$EXP_NAME"
-
 # If anything goes wrong or script is killed, kill all subprocesses too
 # Kills background jobs only. All the jobs below are background jobs.
 trap 'kill $(jobs -p)' EXIT
@@ -39,6 +37,7 @@ cd $RLDIR
 #start rlglue
 rl_glue&
 #run agent
+mkdir -p "$LOGDIR/results"
 $PYTHON $AGENT $AGENT_OPTIONS --savepath "$LOGDIR/results" > $LOGDIR/agent.log 2>&1 &
 #run experiment
 $PYTHON $EXPERIMENT $EXPERIMENT_OPTIONS >> $LOGDIR/experiment.log 2>&1 &

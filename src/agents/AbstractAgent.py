@@ -9,6 +9,8 @@ Created on Thu Feb 19 12:50:45 2015
 import numpy as np
 import copy
 import cPickle as pickle
+import simplejson as json
+import sys
 
 
 from rlglue.agent.Agent import Agent
@@ -47,11 +49,39 @@ class AbstractAgent(Agent,object):
     ep_steps=0
     exploration = True
     name = 'AbstractAgent'    
+
+    @classmethod
+    def register_with_parser(cls, parser):
+        parser.add_argument('--id', dest='agent_id', type=int, help='agent id',
+                        default=0)
+        parser.add_argument('--savepath', dest='save_path', type=str, default='.',
+                        help='save path')  
     
-    def __init__(self,agent_id=0,save_path='.'):
-        self.agent_id = agent_id
-        self.save_path=save_path
+    # def __init__(self,agent_id=0,save_path='.'):
+    #     self.agent_id = agent_id
+    #     self.save_path=save_path
+    #     self.log = {}
+
+    def __init__(self, args):
+        self.args = args
+        self.agent_id = args.agent_id
+        self.save_path = args.save_path
         self.log = {}
+        print "Started agent with arguments:"
+        print ' '.join(sys.argv)
+        self.report_parameters()
+
+    def parameters(self):
+        args_dict = {}
+        args = [arg for arg in dir(self.args) if not arg.startswith('_')]
+        for arg in args:
+            args_dict[arg] = getattr(self.args, arg)
+        return args_dict
+
+    def report_parameters(self):
+        name = '/'.join((self.save_path, 'parameters' + '.json'))
+        with open(name,'wb') as f:
+            json.dump(self.parameters(), f, sort_keys=True, indent='\t')
     
     def log_value(self,key,value):
         if self.log.has_key(key):

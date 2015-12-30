@@ -17,17 +17,32 @@ import numpy as np
 
 class ALESarsaAgent(ALEAgent):
     
-    def __init__(self,rng=np.random.RandomState(),alpha=0.1,lambda_=0.9,gamma=.999,eps=0.05,
-                 agent_id=0,save_path='.',actions=None,no_traces=False):
-        super(ALESarsaAgent,self).__init__(rng,actions,agent_id,save_path)
-        
-        self.eps = eps
+    @classmethod
+    def register_with_parser(cls, parser):
+        super(ALESarsaAgent, cls).register_with_parser(parser)
+        parser.add_argument('--gamma', type=float, default=0.999,
+                        help='discount factor')
+        parser.add_argument('--alpha', type=float, default=0.5,
+                        help='learning rate')
+        parser.add_argument('--lambda_', type=float, default=0.9,
+                        help='trace decay')
+        parser.add_argument('--eps', type=float, default=0.05,
+                        help='exploration rate')
+        parser.add_argument('--features', metavar='F', type=str, default='RAM',
+                        help='features to use: RAM or BASIC')
+        parser.add_argument('--disable-traces', dest='no_traces', action='store_true', help='')
+        # parser.add_argument('--enable-traces', dest='no_traces', action='store_false', help='')
+        parser.set_defaults(no_traces=False)
+
+    def __init__(self, args):
+        super(ALESarsaAgent, self).__init__(args)
         self.name='SARSA'
-        self.alpha0 = alpha
-        self.alpha = alpha
-        self.lambda_ = lambda_
-        self.gamma = gamma
-        self.no_traces = no_traces
+        self.gamma = args.gamma
+        self.alpha = args.alpha
+        self.alpha0 = args.alpha
+        self.lambda_ = args.lambda_
+        self.eps = args.eps
+        self.no_traces = args.no_traces
 
     def agent_start(self,observation):
         super(ALESarsaAgent,self).agent_start(observation)
@@ -55,6 +70,17 @@ class ALESarsaAgent(ALEAgent):
         self.sparse = True
       
     #these methods determine how atari observations are processed
+    # def __init__(self,rng=np.random.RandomState(),alpha=0.1,lambda_=0.9,gamma=.999,eps=0.05,
+    #              agent_id=0,save_path='.',actions=None,no_traces=False):
+    #     super(ALESarsaAgent,self).__init__(rng,actions,agent_id,save_path)
+        
+    #     self.eps = eps
+    #     self.name='SARSA'
+    #     self.alpha0 = alpha
+    #     self.alpha = alpha
+    #     self.lambda_ = lambda_
+    #     self.gamma = gamma
+    #     self.no_traces = no_traces
     def create_projector(self):
         raise NotImplementedError()
         
@@ -166,33 +192,8 @@ class RAMALESarsaAgent(ALESarsaAgent):
         
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description='run Sarsa Agent')
-    parser.add_argument('--id', metavar='I', type=int, help='agent id',
-                        default=0)
-    parser.add_argument('--gamma', metavar='G', type=float, default=0.999,
-                    help='discount factor')
-    parser.add_argument('--alpha', metavar='A', type=float, default=0.5,
-                    help='learning rate')
-    parser.add_argument('--lambda_', metavar='L', type=float, default=0.9,
-                    help='trace decay')
-    parser.add_argument('--eps', metavar='E', type=float, default=0.05,
-                    help='exploration rate')
-    parser.add_argument('--savepath', metavar='P', type=str, default='.',
-                    help='save path')  
-    parser.add_argument('--features', metavar='F', type=str, default='RAM',
-                    help='features to use: RAM or BASIC')
-    parser.add_argument('--actions', metavar='C',type=int, default=None, 
-                        nargs='*',help='list of allowed actions')
-    parser.add_argument('--disable-traces', dest='no_traces', action='store_true', help='')
-    # parser.add_argument('--enable-traces', dest='no_traces', action='store_false', help='')
-    parser.set_defaults(no_traces=False)
-
-
     args = parser.parse_args()
     
-    act = None
-    if not (args.actions is None):
-        act = np.array(args.actions)
-
     if args.features == 'RAM':
         AgentLoader.loadAgent(RAMALESarsaAgent(agent_id=args.id,
                                      alpha =args.alpha,

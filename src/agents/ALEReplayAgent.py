@@ -93,19 +93,43 @@ class TransitionTable(object):
             
 
 class ALEReplayAgent(RAMALESarsaAgent):
-    def __init__(self, replay_memory, replay_frequency, replay_times,
-                 replay_size, **kwargs):
-        super(ALEReplayAgent,self).__init__(**kwargs)
+    @classmethod
+    def register_with_parser(cls, parser):
+        super(ALEReplayAgent, cls).register_with_parser(parser)
+        parser.add_argument('--replay_memory', type=int, 
+                            default=10000, help='replay memory size')
+        parser.add_argument('--replay_frequency', type=int,
+                            default=100, help='replay frequency (T); if 0, replay '
+                            + 'after every episode')
+        parser.add_argument('--replay_times', type=int,
+                            default=3, help='times to replay the database (N); ' +
+                            'useless if --replay_size is specified')
+        parser.add_argument('--replay_size', type=int, default=None,
+                            help='amount of replayed transitions; if unspecified, ' + 
+                            'replay_times*memory_size is used')
+
+
+    # def __init__(self, replay_memory, replay_frequency, replay_times,
+    #              replay_size, **kwargs):
+    #     super(ALEReplayAgent,self).__init__(**kwargs)
+    #     self.name = 'replaySARSA'
+    #     self.replay_memory = replay_memory
+    #     self.replay_frequency = replay_frequency
+    #     self.replay_times = replay_times
+    #     self.replay_size = replay_size
+
+    #     self.total_steps = 0
+
+    def __init__(self, args):
+        super(ALEReplayAgent,self).__init__(args)
         self.name = 'replaySARSA'
-        self.replay_memory = replay_memory
-        self.replay_frequency = replay_frequency
-        self.replay_times = replay_times
-        self.replay_size = replay_size
+        self.replay_memory = args.replay_memory
+        self.replay_frequency = args.replay_frequency
+        self.replay_times = args.replay_times
+        self.replay_size = args.replay_size
 
         self.total_steps = 0
 
-        # Don't use this for now
-        # self.trace = None
 
     def agent_init(self, task_spec):
         super(ALEReplayAgent,self).agent_init(task_spec)
@@ -173,59 +197,6 @@ class ALEReplayAgent(RAMALESarsaAgent):
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description='run Sarsa Replay Agent')
-    # TODO delegate argument parsing to other entity
-
-    ### SARSA parameters ###
-    parser.add_argument('--id', metavar='I', type=int, help='agent id',
-                        default=0)
-    parser.add_argument('--gamma', metavar='G', type=float, default=0.999,
-                    help='discount factor')
-    parser.add_argument('--alpha', metavar='A', type=float, default=0.5,
-                    help='learning rate')
-    parser.add_argument('--lambda_', metavar='L', type=float, default=0.9,
-                    help='trace decay')
-    parser.add_argument('--eps', metavar='E', type=float, default=0.05,
-                    help='exploration rate')
-    parser.add_argument('--savepath', metavar='P', type=str, default='.',
-                    help='save path')  
-    parser.add_argument('--no-traces', dest='no_traces', type=bool,
-                        default=False, help='')
-    parser.add_argument('--actions', metavar='C',type=int, default=None, 
-                        nargs='*',help='list of allowed actions')
-
-    ### Replay parameters ###
-    parser.add_argument('--random_seed', metavar='Z', type=int,
-                        default=None, help='Seed for random number generation')
-    parser.add_argument('--replay_memory', metavar='M', type=int, 
-                        default=10000, help='replay memory size')
-    parser.add_argument('--replay_frequency', metavar='R', type=int,
-                        default=100, help='replay frequency (T); if 0, replay '
-                        + 'after every episode')
-    parser.add_argument('--replay_times', metavar='N', type=int,
-                        default=3, help='times to replay the database (N); ' +
-                        'useless if --replay_size is specified')
-    parser.add_argument('--replay_size', metavar='S', type=int, default=None,
-                        help='amount of replayed transitions; if unspecified, ' + 
-                        'replay_times*memory_size is used')
-
+    ALEReplayAgent.register_with_parser(parser)
     args = parser.parse_args()
-
-    act = None
-    if not (args.actions is None):
-        act = np.array(args.actions)
-
-    rng = np.random.RandomState(args.random_seed)  
-
-    AgentLoader.loadAgent(ALEReplayAgent(agent_id=args.id,
-                                    alpha =args.alpha,
-                                    lambda_=args.lambda_,
-                                    eps =args.eps,
-                                    gamma=args.gamma, 
-                                    save_path=args.savepath,
-                                    actions = act,
-                                    rng = rng,
-                                    no_traces = args.no_traces,
-                                    replay_memory = args.replay_memory,
-                                    replay_frequency = args.replay_frequency,
-                                    replay_times = args.replay_times,
-                                    replay_size = args.replay_size))
+    AgentLoader.loadAgent(ALEReplayAgent(args))
