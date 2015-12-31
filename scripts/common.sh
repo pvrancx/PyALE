@@ -12,7 +12,7 @@ LOGDIR="${BASEDIR}/logs/${EXP_NAME}_${GAME}_${TIME_STR}"
 echo "Using python binary ${PYTHON}"
 echo "Writing logs to ${LOGDIR}"
 
-ENABLE_PROFILER="YES"
+ENABLE_PROFILER=""
 PROFILE_STRING=""
 if [ $ENABLE_PROFILER ]; then
   PROFILE_STRING="-m cProfile -o '$LOGDIR/profile'"
