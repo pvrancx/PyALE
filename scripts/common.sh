@@ -12,9 +12,9 @@ LOGDIR="${BASEDIR}/logs/${EXP_NAME}_${GAME}_${TIME_STR}"
 echo "Using python binary ${PYTHON}"
 echo "Writing logs to ${LOGDIR}"
 
-ENABLE_PROFILER=""
+ENABLE_PROFILER=0
 PROFILE_STRING=""
-if [ $ENABLE_PROFILER ]; then
+if [ $ENABLE_PROFILER -ne 0 ]; then
   PROFILE_STRING="-m cProfile -o '$LOGDIR/profile'"
 fi
 
@@ -33,8 +33,10 @@ export PYTHONUNBUFFERED="YEAP"
 # If anything goes wrong or script is killed, kill all subprocesses too
 # Kills background jobs only. All the jobs below are background jobs.
 # The profiler won't write results with this trap
-if [ ! $ENABLE_PROFILER ]; then
+if [ $ENABLE_PROFILER -eq 0 ]; then
   trap 'kill $(jobs -p)' EXIT
+else
+  echo "Disabling trap because profiler is running"
 fi
 # More elaborate. Kill thoroughly.
 # trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
