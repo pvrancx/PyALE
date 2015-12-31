@@ -8,7 +8,8 @@ REPLAY_TIMES=${REPLAY_TIMES:-3}
 
 EXP_NAME="replay_sarsa"
 EXPERIMENT="exp/generic_experiment.py"
-EXPERIMENT_OPTIONS="--maxsteps 2000  --numeps 3000 --numtrials 5"
+# EXPERIMENT_OPTIONS="--maxsteps 2000  --numeps 3000 --numtrials 5"
+EXPERIMENT_OPTIONS="--maxsteps 2000  --numeps 3 --numtrials 1"
 AGENT="agents/ALEReplayAgent.py"
 AGENT_REPLAY_OPTIONS="--random_seed=${RANDOM_SEED} --replay_memory=5000 --replay_times=${REPLAY_TIMES} --replay_frequency=100"
 AGENT_OPTIONS="--eps 0.05 --lambda 0.5 --alpha 0.1 --actions 0 1 3 4 ${AGENT_REPLAY_OPTIONS}"

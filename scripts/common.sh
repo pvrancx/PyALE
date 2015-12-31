@@ -12,6 +12,12 @@ LOGDIR="${BASEDIR}/logs/${EXP_NAME}_${GAME}_${TIME_STR}"
 echo "Using python binary ${PYTHON}"
 echo "Writing logs to ${LOGDIR}"
 
+ENABLE_PROFILER="YES"
+PROFILE_STRING=""
+if [ $ENABLE_PROFILER ]; then
+  PROFILE_STRING="-m cProfile -o '$LOGDIR/profile'"
+fi
+
 ####### Other Settings ########
 # This one didn't work. Maybe the socket didn't close in time? RLGlue refused to take this port
 # export RLGLUE_PORT=`python -c 'import socket; s=socket.socket(); s.bind(("",
@@ -26,7 +32,10 @@ export PYTHONUNBUFFERED="YEAP"
 
 # If anything goes wrong or script is killed, kill all subprocesses too
 # Kills background jobs only. All the jobs below are background jobs.
-trap 'kill $(jobs -p)' EXIT
+# The profiler won't write results with this trap
+if [ ! $ENABLE_PROFILER ]; then
+  trap 'kill $(jobs -p)' EXIT
+fi
 # More elaborate. Kill thoroughly.
 # trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
 
@@ -38,7 +47,7 @@ cd $RLDIR
 rl_glue&
 #run agent
 mkdir -p "$LOGDIR/results"
-$PYTHON $AGENT $AGENT_OPTIONS --savepath "$LOGDIR/results" > $LOGDIR/agent.log 2>&1 &
+$PYTHON $PROFILE_STRING $AGENT $AGENT_OPTIONS --savepath "$LOGDIR/results" > $LOGDIR/agent.log 2>&1 &
 #run experiment
 $PYTHON $EXPERIMENT $EXPERIMENT_OPTIONS >> $LOGDIR/experiment.log 2>&1 &
 #run environment (no '&' or job quits!)
