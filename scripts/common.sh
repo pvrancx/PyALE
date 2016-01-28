@@ -7,7 +7,7 @@ ROMDIR="${BASEDIR}/roms"
 PYTHON=${PYTHON:-"python"}
 
 # Every experiment gets a 'unique' directory, so no accidental overwriting occurs
-TIME_STR=`python -c "import time; print time.strftime('%d-%m-%Y_%H-%M')"`
+TIME_STR=`python -c "import time; print time.strftime('%d-%m-%Y_%H-%M-%S')"`
 LOGDIR="${BASEDIR}/logs/${EXP_NAME}_${GAME}_${TIME_STR}"
 echo "Using python binary ${PYTHON}"
 echo "Writing logs to ${LOGDIR}"
@@ -42,7 +42,7 @@ fi
 # trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
 
 # Keep a handy simlink to the latest results for debugging purposes
-ln -sfT $LOGDIR "last_${EXP_NAME}_${GAME}"
+ln -sfT $LOGDIR "${BASEDIR}/logs/last_${EXP_NAME}_${GAME}"
 
 cd $RLDIR
 #start rlglue

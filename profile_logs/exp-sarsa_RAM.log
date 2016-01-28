@@ -1,5 +1,0 @@
-trial: 0
-RL-Glue Python Experiment Codec Version: 2.02 (Build 738)
-	Connecting to 127.0.0.1 on port 1028...
-Experiment 1	 Episode 0	 66 steps 	30.0 total reward	 1 natural end
-trial finished, final reward: 30.0
