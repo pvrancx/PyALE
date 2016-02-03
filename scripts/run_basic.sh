@@ -6,7 +6,7 @@ DISABLE_TRACES=${DISABLE_TRACES:-""}
 
 EXP_NAME="sarsa_BASIC"
 EXPERIMENT="exp/generic_experiment.py"
-EXPERIMENT_OPTIONS="--maxsteps 2000  --numeps 3000 --numtrials 1"
+EXPERIMENT_OPTIONS="--maxsteps 2000  --numeps 3000 --numtrials 5"
 AGENT="agents/ALESarsaAgent.py"
 AGENT_OPTIONS="--eps 0.05 --lambda 0.5 --alpha 0.1 --actions 0 1 3 4 --features BASIC"
 ALE_OPTIONS="-game_controller rlglue  -frame_skip 30 -repeat_action_probability 0.0 -random_seed ${RANDOM_SEED}"
