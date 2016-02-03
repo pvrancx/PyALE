@@ -24,7 +24,7 @@ class ALESarsaAgent(ALEAgent):
                         help='discount factor')
         parser.add_argument('--alpha', type=float, default=0.5,
                         help='learning rate')
-        parser.add_argument('--lambda_', type=float, default=0.9,
+        parser.add_argument('--lambda', type=float, default=0.9, dest='lambda_',
                         help='trace decay')
         parser.add_argument('--eps', type=float, default=0.05,
                         help='exploration rate')
@@ -166,8 +166,8 @@ class ALESarsaAgent(ALEAgent):
         self.step(reward)
         
 class BasicALESarsaAgent(ALESarsaAgent):
-    def __init__(self,bg_file='../data/space_invaders/background.pkl',**kwargs):
-        super(BasicALESarsaAgent,self).__init__(**kwargs)
+    def __init__(self, args, bg_file='../data/space_invaders/background.pkl'):
+        super(BasicALESarsaAgent,self).__init__(args)
         self.background = bg_file
         
     def create_projector(self):
@@ -192,25 +192,11 @@ class RAMALESarsaAgent(ALESarsaAgent):
         
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description='run Sarsa Agent')
+    ALESarsaAgent.register_with_parser(parser)
     args = parser.parse_args()
-    
     if args.features == 'RAM':
-        AgentLoader.loadAgent(RAMALESarsaAgent(agent_id=args.id,
-                                     alpha =args.alpha,
-                                     lambda_=args.lambda_,
-                                     eps =args.eps,
-                                     gamma=args.gamma, 
-                                     save_path=args.savepath,
-                                     actions = act))
+        AgentLoader.loadAgent(RAMALESarsaAgent(args))
     elif args.features == 'BASIC':
-        AgentLoader.loadAgent(BasicALESarsaAgent(agent_id=args.id,
-                                     alpha =args.alpha,
-                                     lambda_=args.lambda_,
-                                     eps =args.eps,
-                                     gamma=args.gamma, 
-                                     save_path=args.savepath,
-                                     actions = act))
+        AgentLoader.loadAgent(BasicALESarsaAgent(args))
     else:
-        print 'unknown feature type'
-    
-        
+        raise Exception('unknown feature type')

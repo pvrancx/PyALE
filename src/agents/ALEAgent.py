@@ -15,17 +15,6 @@ class ALEAgent(AbstractAgent):
     actions = None #action set to use
     base_reward = None #reward reference, needed for normalization
     
-    # def __init__(self,rng=np.random.RandomState(),actions=None,agent_id=0,
-    #              save_path='.'):
-    #     super(ALEAgent,self).__init__(agent_id,save_path)
-    #     if actions is None:
-    #         self.actions = np.arange(18) #18 buttons
-    #     else:
-    #         assert np.all(np.logical_and(actions>=0,actions<18)), \
-    #             'invalid action'
-    #         self.actions = actions
-    #     self.rng = rng
-
     @classmethod
     def register_with_parser(cls, parser):
         super(ALEAgent, cls).register_with_parser(parser)
@@ -44,6 +33,7 @@ class ALEAgent(AbstractAgent):
             assert np.all(np.logical_and(args.actions>=0,args.actions<18)), \
                 'invalid action'
             self.actions = args.actions
+        print "using actions", self.actions
         self.rng = np.random.RandomState(args.random_seed)  
             
     

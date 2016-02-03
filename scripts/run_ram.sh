@@ -4,7 +4,7 @@
 RANDOM_SEED=${RANDOM_SEED:-"42"}
 DISABLE_TRACES=${DISABLE_TRACES:-""}
 
-EXP_NAME="sarsa_BASIC"
+EXP_NAME="sarsa_RAM"
 EXPERIMENT="exp/generic_experiment.py"
 EXPERIMENT_OPTIONS="--maxsteps 2000  --numeps 3000 --numtrials 1"
 AGENT="agents/ALESarsaAgent.py"
