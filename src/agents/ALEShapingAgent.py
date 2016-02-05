@@ -28,9 +28,8 @@ class ALEShapingAgent(BasicALESarsaAgent):
     
     def __init__(self, args):
         super(ALEShapingAgent, self).__init__(args)
-        self.bonus_per_alien = 15
-        self.last_observation = None
         self.last_num_enemies = 0
+        self.alien_potential = 0
 
 
     def agent_start(self, observation):
@@ -61,8 +60,10 @@ class ALEShapingAgent(BasicALESarsaAgent):
         # Reward for killing an alien is between say 5-30 for starters
         # Boost this up a bit by giving an extra 15 per alien killed
         num_enemies = self.num_enemies(frame)
-        self.most_enemies = max(self.most_enemies, num_enemies)
-        alien_bonus = self.bonus_per_alien * (self.most_enemies - num_enemies)
+        # self.most_enemies = max(self.most_enemies, num_enemies)
+        self.alien_potential = self.alien_potential + self.bonus_per_alien * max(0, num_enemies - self.last_num_enemies)
+        self.last_num_enemies = num_enemies
+        alien_bonus = self.alien_potential
         # Standing under a laser might be bad
         laser_penalty = - self.laser_penalty if self.below_laser(frame) else 0
         # Standing under a shield might be good
