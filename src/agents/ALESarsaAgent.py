@@ -69,18 +69,6 @@ class ALESarsaAgent(ALEAgent):
                                 self.num_actions()))
         self.sparse = True
       
-    #these methods determine how atari observations are processed
-    # def __init__(self,rng=np.random.RandomState(),alpha=0.1,lambda_=0.9,gamma=.999,eps=0.05,
-    #              agent_id=0,save_path='.',actions=None,no_traces=False):
-    #     super(ALESarsaAgent,self).__init__(rng,actions,agent_id,save_path)
-        
-    #     self.eps = eps
-    #     self.name='SARSA'
-    #     self.alpha0 = alpha
-    #     self.alpha = alpha
-    #     self.lambda_ = lambda_
-    #     self.gamma = gamma
-    #     self.no_traces = no_traces
     def create_projector(self):
         raise NotImplementedError()
         
