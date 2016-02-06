@@ -6,6 +6,9 @@ Created on Sat Aug 29 12:33:59 2015
 """
 
 import numpy as np
+import matplotlib.pyplot as plt
+from util.image_processing import as_RGB
+
 from agents.AbstractAgent import AbstractAgent
 
 class ALEAgent(AbstractAgent):
@@ -35,6 +38,16 @@ class ALEAgent(AbstractAgent):
             self.actions = args.actions
         print "using actions", self.actions
         self.rng = np.random.RandomState(args.random_seed)  
+
+
+    def screenshot(self, frame, filename=None):
+        self.screenshots += 1
+        plt.imshow(as_RGB(frame))
+        if filename:
+            plt.savefig(self.save_path + '/' + filename)
+        else:
+            plt.savefig(self.save_path + '/screen{}.png'.format(self.screenshots))
+        plt.clf()
             
     
     '''

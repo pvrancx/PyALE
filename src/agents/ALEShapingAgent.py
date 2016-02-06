@@ -20,10 +20,12 @@ class ALEShapingAgent(BasicALESarsaAgent):
         parser.add_argument('--bonus_per_alien', type=float, default=10,
                             help='shaping bonus per alien killed')
         # parser.add_argument('--clear_alien_bonus', type=float, default=200)
-        parser.add_argument('--laser_penalty', type=float, default=20,
+        parser.add_argument('--laser_penalty', type=float, default=10,
                             help='shaping penalty when beneath laser')
-        parser.add_argument('--shield_bonus', type=float, default=10,
+        # Ship is 7-8 in width, every shielded pixel gets a bonus
+        parser.add_argument('--shield_bonus', type=float, default=3,
                             help='shaping bonus when beneath shield')
+        parser.add_argument('--lowest_enemy_penalty', type=float, default=2)
         parser.set_defaults(allow_negative_rewards=True)
 
     
@@ -33,14 +35,16 @@ class ALEShapingAgent(BasicALESarsaAgent):
         self.bonus_per_alien = args.bonus_per_alien
         self.laser_penalty = args.laser_penalty
         self.shield_bonus = args.shield_bonus
+        self.lowest_enemy_penalty = args.lowest_enemy_penalty
+        self.ship_width = None
 
 
     def agent_init(self,taskspec):
         super(ALEShapingAgent, self).agent_init(taskspec)
         self.shaping_data_filename = '/'.join((self.save_path, 'shaping.csv'))
         with open(self.shaping_data_filename, 'wb') as f:
-            f.write(','.join(('alien_bonus', 'laser_penalty', 'shield_bonus')) +
-                    '\n')
+            f.write(','.join(('alien_bonus', 'laser_penalty', 'shield_bonus',
+                              'lowest_enemy_penalty')) + '\n')
 
 
     def agent_start(self, observation):
@@ -49,6 +53,7 @@ class ALEShapingAgent(BasicALESarsaAgent):
             'alien_bonus': [],
             'laser_penalty': [],
             'shield_bonus': [],
+            'lowest_enemy_penalty': [],
         }
         self.last_num_enemies = 0
         self.alien_potential = 0
@@ -59,31 +64,39 @@ class ALEShapingAgent(BasicALESarsaAgent):
         return self.get_frame_data(observation).reshape((210, 160))
 
     def space_ship_position(self, frame):
-        # plt.imshow(as_RGB(frame))
-        # plt.savefig(self.save_path + '/screen.png')
         # It's always in this specific strip
         space_ship_strip = frame[184:194,:]
-        return (np.min(np.where(frame[184:194,:]==196)[1]),
-                np.max(np.where(frame[184:194,:]==196)[1]))
+        # space ship is either 194 or 196
+        return (np.min(np.where((space_ship_strip==196) +
+                                (space_ship_strip==194))[1]),
+                np.max(np.where((space_ship_strip==196) +
+                                (space_ship_strip==194))[1]))
 
     def is_spaceship_present(self, frame):
         space_ship_strip = frame[184:194,:]
         return np.any(space_ship_strip == 196)
 
     def num_enemies(self, frame):
-        return np.sum(frame == 20)//37 #on average each enemy consists of 37 pixels
+        # Looks like aliens are either 18 or 20
+        return np.sum((frame == 20) + (frame == 18))//37 #on average each enemy consists of 37 pixels
+    def lowest_enemy(self, frame):
+        return np.max(np.where(frame==20)[0]) #max:lower screen has higher row index
 
     def below_laser(self, frame):
-        c1,c2 = self.space_ship_position(frame)
+        c1, c2 = self.space_ship_position(frame)
+        # if 6 in np.unique(frame):
+        # self.screenshot(frame)
         return np.any(
-            frame[:,c1:c2+1] == 4 #+1, upper boundary is exclusive
+            frame[:,c1:c2+1] == 6 #+1, upper boundary is exclusive
         )
 
-    def below_shield(self, frame):
+    def pixels_below_shield(self, frame):
         c1,c2 = self.space_ship_position(frame)
-        return np.all( #test if all columns contain shield
-                    np.any(frame[:,c1:c2+1] == 52,
+        return np.count_nonzero(
+                    # It's either 52 or 53
+                    np.any(frame[:,c1:c2+1] / 2 == 26,
                     axis=0) ) #add axis argument to check per column
+        
 
     def potential(self, frame):
         # Reward for killing an alien is between say 5-30 for starters
@@ -100,14 +113,21 @@ class ALEShapingAgent(BasicALESarsaAgent):
             alien_bonus = self.alien_potential
             # Standing under a laser might be bad
             laser_penalty = - self.laser_penalty if self.below_laser(frame) else 0
-            # Standing under a shield might be good
-            shield_bonus = self.shield_bonus if self.below_shield(frame) else 0
+            # Standing under a shield might be good. The more covered the better
+            shielded_pixels = self.pixels_below_shield(frame)
+            shield_bonus = self.shield_bonus * shielded_pixels
 
-        F = alien_bonus + shield_bonus + laser_penalty
+        # This one goes regardless of spaceship position
+        # The lower the lowest enemy, the closer to doom
+        lowest_enemy = self.lowest_enemy(frame)
+        lowest_enemy_penalty = self.lowest_enemy_penalty * (120 - lowest_enemy)
+
+        F = alien_bonus + shield_bonus + laser_penalty + lowest_enemy_penalty
         
         self.outstanding_shaping_data['alien_bonus'].append(alien_bonus)
         self.outstanding_shaping_data['shield_bonus'].append(shield_bonus)
         self.outstanding_shaping_data['laser_penalty'].append(laser_penalty)
+        self.outstanding_shaping_data['lowest_enemy_penalty'].append(lowest_enemy_penalty)
 
         return F
 
@@ -130,12 +150,13 @@ class ALEShapingAgent(BasicALESarsaAgent):
         return self.create_action(self.actions[a_ns])#create RLGLUE action
 
     def agent_end(self, reward):
-        with open(self.shaping_data_filename, 'wb') as f:
+        with open(self.shaping_data_filename, 'a') as f:
             for i in range(len(self.outstanding_shaping_data['alien_bonus'])):
                 f.write(','.join(map(str, [
                     self.outstanding_shaping_data['alien_bonus'][i],
                     self.outstanding_shaping_data['laser_penalty'][i],
-                    self.outstanding_shaping_data['shield_bonus'][i]
+                    self.outstanding_shaping_data['shield_bonus'][i],
+                    self.outstanding_shaping_data['lowest_enemy_penalty'][i]
                     ])) + '\n')
         super(ALEShapingAgent, self).agent_end(reward)
 

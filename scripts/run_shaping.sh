@@ -11,7 +11,7 @@ AGENT="agents/ALEShapingAgent.py"
 # AGENT_SHAPING_OPTIONS="--allow_negative_rewards --bonus_per_alien=15 --laser_penalty=20"
 AGENT_SHAPING_OPTIONS=${AGENT_SHAPING_OPTIONS:-""}
 AGENT_OPTIONS="--eps 0.05 --lambda 0.5 --alpha 0.1 --random_seed ${RANDOM_SEED} --actions 0 1 3 4 ${AGENT_SHAPING_OPTIONS}"
-ALE_OPTIONS="-game_controller rlglue  -frame_skip 30 -repeat_action_probability 0.0 -random_seed ${RANDOM_SEED} -display_screen false"
+ALE_OPTIONS="-game_controller rlglue  -frame_skip 30 -repeat_action_probability 0.0 -random_seed ${RANDOM_SEED} -display_screen false -color_averaging false"
 GAME="space_invaders"
 
 # Boolean flags are handled a bit more annoyingly
