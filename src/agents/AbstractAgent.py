@@ -56,6 +56,7 @@ class AbstractAgent(Agent,object):
                         default=0)
         parser.add_argument('--savepath', dest='save_path', type=str, default='.',
                         help='save path')  
+        parser.add_argument('--save_interval', type=int, default=10)
     
     # def __init__(self,agent_id=0,save_path='.'):
     #     self.agent_id = agent_id
@@ -66,6 +67,7 @@ class AbstractAgent(Agent,object):
         self.args = args
         self.agent_id = args.agent_id
         self.save_path = args.save_path
+        self.save_interval = args.save_interval
         self.log = {}
         print "Started agent with arguments:"
         print ' '.join(sys.argv)
@@ -224,9 +226,3 @@ class AbstractAgent(Agent,object):
             # print self.num_actions()
         else:
             print "Task Spec could not be parsed: "+spec
-            
-
-
-
-
-

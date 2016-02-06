@@ -41,7 +41,7 @@ def runEpisode(stepLimit, trial):
 	totalSteps=RLGlue.RL_num_steps()
 	totalReward=RLGlue.RL_return()
 	
-	print "Experiment "+str(trial)+"\t Episode "+str(whichEpisode)+"\t "+str(totalSteps)+ " steps \t" + str(totalReward) + " total reward\t " + str(terminal) + " natural end"
+	print "Experiment "+str(trial + 1)+"\t Episode "+str(whichEpisode)+"\t "+str(totalSteps)+ " steps \t" + str(totalReward) + " total reward\t " + str(terminal) + " natural end"
 	
 	whichEpisode=whichEpisode+1
 
