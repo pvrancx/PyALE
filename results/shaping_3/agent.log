@@ -1,0 +1,33 @@
+Started agent with arguments:
+agents/ALEShapingAgent.py --eps 0.05 --lambda 0.5 --alpha 0.1 --random_seed 42 --actions 0 1 3 4 --shield_bonus=6 --savepath /exports/home/rvereeck/PyALE/scripts/../logs/shaping_space_invaders_06-02-2016_17-54-12/results
+using actions [0 1 3 4]
+RL-Glue Python Agent Codec Version: 2.02 (Build 738)
+	Connecting to 127.0.0.1 on port 4096...
+	 Agent Codec Connected
+[[ 0 18]]
+VERSION RL-Glue-3.0 PROBLEMTYPE episodic DISCOUNTFACTOR 1 OBSERVATIONS INTS (128 0 255)(33600 0 127) ACTIONS INTS (0 18) REWARDS (UNSPEC UNSPEC) EXTRA Name: Arcade Learning Environment 
+ALE AGENT:
+Integer Action dimensions:
+1
+#number of Integer Actions
+4
+Using 2016 features
+saving log to file...
+[[ 0 18]]
+VERSION RL-Glue-3.0 PROBLEMTYPE episodic DISCOUNTFACTOR 1 OBSERVATIONS INTS (128 0 255)(33600 0 127) ACTIONS INTS (0 18) REWARDS (UNSPEC UNSPEC) EXTRA Name: Arcade Learning Environment 
+ALE AGENT:
+Integer Action dimensions:
+1
+#number of Integer Actions
+4
+Using 2016 features
+saving log to file...
+[[ 0 18]]
+VERSION RL-Glue-3.0 PROBLEMTYPE episodic DISCOUNTFACTOR 1 OBSERVATIONS INTS (128 0 255)(33600 0 127) ACTIONS INTS (0 18) REWARDS (UNSPEC UNSPEC) EXTRA Name: Arcade Learning Environment 
+ALE AGENT:
+Integer Action dimensions:
+1
+#number of Integer Actions
+4
+Using 2016 features
+saving log to file...

@@ -1,0 +1,17 @@
+{
+	"actions": [
+		0,
+		1,
+		3,
+		4
+	],
+	"agent_id": 0,
+	"alpha": 0.1,
+	"eps": 0.05,
+	"features": "RAM",
+	"gamma": 0.999,
+	"lambda_": 0.5,
+	"no_traces": false,
+	"random_seed": null,
+	"save_path": "/exports/home/rvereeck/PyALE/scripts/../logs/sarsa_RAM_space_invaders_03-02-2016_23-28-31/results"
+}
