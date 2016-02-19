@@ -5,18 +5,17 @@ Created on Tue Mar 31 20:03:10 2015
 @author: pvrancx
 """
 
-
 from rlglue.agent import AgentLoader as AgentLoader
-
-
 
 import argparse
 
 from util.ALEFeatures import BasicALEFeatures,RAMALEFeatures
 from agents.ALESarsaAgent import ALESarsaAgent
-
+from agents.BasicALEAgent import BasicALEAgent
+from agents.RAMALEAgent import RAMALEAgent
 
 import numpy as np
+
 
 class ALEQlearningAgent(ALESarsaAgent):
     
@@ -45,65 +44,22 @@ class ALEQlearningAgent(ALESarsaAgent):
             self.trace *= 0. #reset trace
         return a_ns  #a_ns is action index (not action value)
 
-        
-class BasicALEQlearningAgent(ALEQlearningAgent):
-    def __init__(self,bg_file='../data/space_invaders/background.pkl',**kwargs):
-        super(BasicALEQlearningAgent,self).__init__(**kwargs)
-        self.background = bg_file
-        
-    def create_projector(self):
-        return BasicALEFeatures(num_tiles=np.array([14,16]),
-            background_file =  self.background )
- 
-    def get_data(self,obs):
-        return self.get_frame_data(obs)
 
+class BasicALEQLearningAgent(BasicALEAgent, ALEQLearningAgent):
+    pass
     
-class RAMALEQlearningAgent(ALEQlearningAgent):
-    def create_projector(self):
-        return RAMALEFeatures()
-        
-    def get_data(self,obs):
-        return self.get_ram_data(obs)
+class RAMALEQLearningAgent(RAMALEAgent, ALEQLearningAgent):
+    pass
         
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description='run Sarsa Agent')
-    parser.add_argument('--id', metavar='I', type=int, help='agent id',
-                        default=0)
-    parser.add_argument('--gamma', metavar='G', type=float, default=0.999,
-                    help='discount factor')
-    parser.add_argument('--alpha', metavar='A', type=float, default=0.5,
-                    help='learning rate')
-    parser.add_argument('--lambda_', metavar='L', type=float, default=0.9,
-                    help='trace decay')
-    parser.add_argument('--eps', metavar='E', type=float, default=0.05,
-                    help='exploration rate')
-    parser.add_argument('--savepath', metavar='P', type=str, default='.',
-                    help='save path')  
-    parser.add_argument('--features', metavar='F', type=str, default='BASIC',
+    parser.add_argument('--features', metavar='F', type=str, default='RAM',
                     help='features to use: RAM or BASIC')
-    parser.add_argument('--actions', metavar='C',type=int, default=None, 
-                        nargs='*',help='list of allowed actions')
-
+    ALEQLearningAgent.register_with_parser(parser)
     args = parser.parse_args()
-
     if args.features == 'RAM':
-        AgentLoader.loadAgent(RAMALEQlearningAgent(agent_id=args.id,
-                                     alpha =args.alpha,
-                                     lambda_=args.lambda_,
-                                     eps =args.eps,
-                                     gamma=args.gamma, 
-                                     save_path=args.savepath,
-                                     actions = args.actions))
+        AgentLoader.loadAgent(RAMALEQLearningAgent(args))
     elif args.features == 'BASIC':
-        AgentLoader.loadAgent(BasicALEQlearningAgent(agent_id=args.id,
-                                     alpha =args.alpha,
-                                     lambda_=args.lambda_,
-                                     eps =args.eps,
-                                     gamma=args.gamma, 
-                                     save_path=args.savepath,
-                                     actions = args.actions))
+        AgentLoader.loadAgent(BasicALEQLearningAgent(args))
     else:
-        print 'unknown feature type'
-    
-        
+        raise Exception('unknown feature type')

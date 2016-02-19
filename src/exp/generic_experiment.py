@@ -31,18 +31,17 @@ parser.add_argument('--numeps', metavar='T', type=int, default=100,
                     help='number of episodes per trials')
 parser.add_argument('--path', type=str,default='.',help='save path')
 parser.add_argument('--logname', type=str,default='exp',help='save file name')
-parser.add_argument('--expid', type=int,default=1,help='experiment id')
 args = parser.parse_args()
 
 whichEpisode=0
 
-def runEpisode(stepLimit):
+def runEpisode(stepLimit, trial):
 	global whichEpisode
 	terminal=RLGlue.RL_episode(stepLimit)
 	totalSteps=RLGlue.RL_num_steps()
 	totalReward=RLGlue.RL_return()
 	
-	print "Experiment "+str(args.expid)+"\t Episode "+str(whichEpisode)+"\t "+str(totalSteps)+ " steps \t" + str(totalReward) + " total reward\t " + str(terminal) + " natural end"
+	print "Experiment "+str(trial + 1)+"\t Episode "+str(whichEpisode)+"\t "+str(totalSteps)+ " steps \t" + str(totalReward) + " total reward\t " + str(terminal) + " natural end"
 	
 	whichEpisode=whichEpisode+1
 
@@ -56,12 +55,10 @@ for t in range(args.numtrials):
     steps=np.zeros(args.numeps)
     rews=np.zeros(args.numeps)
     for ep in range(args.numeps):
-        runEpisode(args.maxsteps)
+        runEpisode(args.maxsteps, t)
         steps[ep] = RLGlue.RL_num_steps()
         rews[ep] = RLGlue.RL_return()
     print 'trial finished, final reward: '+str(rews[-1])
-    #with open(args.path+'/'+args.logname+'_'+str(args.expid)+'_'+str(t)+'.pkl','w') as f:
-    #    pickle.dump((steps,rews),f,-1)
     RLGlue.RL_cleanup()
 
 
