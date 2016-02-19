@@ -6,6 +6,9 @@ Created on Sat Aug 29 12:33:59 2015
 """
 
 import numpy as np
+import matplotlib.pyplot as plt
+from util.image_processing import as_RGB
+
 from agents.AbstractAgent import AbstractAgent
 
 class ALEAgent(AbstractAgent):
@@ -13,16 +16,38 @@ class ALEAgent(AbstractAgent):
     Base class for ALE RL GLUE agents
     '''
     actions = None #action set to use
-    base_reward = None #reward reference, needed for normalization
     
-    def __init__(self,actions=None,agent_id=0,save_path='.'):
-        super(ALEAgent,self).__init__(agent_id,save_path)
-        if actions is None:
+    @classmethod
+    def register_with_parser(cls, parser):
+        super(ALEAgent, cls).register_with_parser(parser)
+        parser.add_argument('--actions', type=int, default=None, 
+                            nargs='*',help='list of allowed actions')
+        parser.add_argument('--random_seed', type=int,
+                            default=None, help='Seed for random number generation')
+
+
+    def __init__(self, args):
+        super(ALEAgent,self).__init__(args)
+        self.base_reward = None # reward reference, needed for normalization
+        if args.actions is None:
             self.actions = np.arange(18) #18 buttons
         else:
-            assert np.all(np.logical_and(actions>=0,actions<18)), \
+            args.actions = np.array(args.actions)
+            assert np.all(np.logical_and(args.actions>=0,args.actions<18)), \
                 'invalid action'
-            self.actions = actions
+            self.actions = args.actions
+        print "using actions", self.actions
+        self.rng = np.random.RandomState(args.random_seed)  
+
+
+    def screenshot(self, frame, filename=None):
+        self.screenshots += 1
+        plt.imshow(as_RGB(frame))
+        if filename:
+            plt.savefig(self.save_path + '/' + filename)
+        else:
+            plt.savefig(self.save_path + '/screen{}.png'.format(self.screenshots))
+        plt.clf()
             
     
     '''
@@ -66,9 +91,6 @@ class ALEAgent(AbstractAgent):
     
     def agent_init(self,taskspec):
         super(ALEAgent,self).agent_init(taskspec)
-#        if self.actions is None:
-#            #full ALE action set
-#            self.actions = np.arange(18)
         
         #change default ALE task, no ply2 act
         self._n_int_actions = len(self.actions)
@@ -92,9 +114,3 @@ class ALEAgent(AbstractAgent):
          super(ALEAgent,self).agent_step(reward, observation)
          act=np.random.choice(self.actions)
          return self.create_action(act)
-    
-            
-
-    
-    #def agent_message(self,inMessage):
-    #    return "I don't know how to respond to your message"

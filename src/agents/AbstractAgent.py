@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 """
 Created on Thu Feb 19 12:50:45 2015
@@ -9,14 +8,13 @@ Created on Thu Feb 19 12:50:45 2015
 import numpy as np
 import copy
 import cPickle as pickle
+import simplejson as json
+import sys
 
 
 from rlglue.agent.Agent import Agent
 from rlglue.utils import TaskSpecVRLGLUE3
 from rlglue.types import Action
-
-#from util.log import Logger
-
 
 #convert agents to new python classes
 class AbstractAgent(Agent,object):
@@ -47,11 +45,37 @@ class AbstractAgent(Agent,object):
     ep_steps=0
     exploration = True
     name = 'AbstractAgent'    
+
+    @classmethod
+    def register_with_parser(cls, parser):
+        parser.add_argument('--id', dest='agent_id', type=int, help='agent id',
+                        default=0)
+        parser.add_argument('--savepath', dest='save_path', type=str, default='.',
+                        help='save path')  
+        parser.add_argument('--save_interval', type=int, default=10)
     
-    def __init__(self,agent_id=0,save_path='.'):
-        self.agent_id = agent_id
-        self.save_path=save_path
+    def __init__(self, args):
+        self.args = args
+        self.agent_id = args.agent_id
+        self.save_path = args.save_path
+        self.save_interval = args.save_interval
         self.log = {}
+        self.screenshots = 0
+        print "Started agent with arguments:"
+        print ' '.join(sys.argv)
+        self.report_parameters()
+
+    def parameters(self):
+        args_dict = {}
+        args = [arg for arg in dir(self.args) if not arg.startswith('_')]
+        for arg in args:
+            args_dict[arg] = getattr(self.args, arg)
+        return args_dict
+
+    def report_parameters(self):
+        name = '/'.join((self.save_path, 'parameters' + '.json'))
+        with open(name,'wb') as f:
+            json.dump(self.parameters(), f, sort_keys=True, indent='\t')
     
     def log_value(self,key,value):
         if self.log.has_key(key):
@@ -63,18 +87,17 @@ class AbstractAgent(Agent,object):
     '''
         Turns RLGlue observation into state representation (single double array)
     '''
-    def get_state(self,obs):
-        self.last_observation=copy.deepcopy(obs)
-        state = []
-        if self.double_dims()>0:
-            state.append(obs.doubleArray)
-        if self.int_dims()>0:
-            state.append(obs.intArray)
-        self.last_state=np.array(state).flatten()
-        return self.last_state
+    # def get_state(self,obs):
+    #     self.last_observation=copy.deepcopy(obs)
+    #     state = []
+    #     if self.double_dims()>0:
+    #         state.append(obs.doubleArray)
+    #     if self.int_dims()>0:
+    #         state.append(obs.intArray)
+    #     self.last_state=np.array(state).flatten()
+    #     return self.last_state
         
     def create_action(self,act):
-        self.last_act=act
         if np.isscalar(act):
             act = np.array([act])
         assert (act.size == self.action_dims()),'illegal action dimension'
@@ -149,10 +172,13 @@ class AbstractAgent(Agent,object):
             return 'ok'
         else:
             return "I don't know how to respond to your message"
-            
+
+    def file_name(self):
+        return str(self.name)+'_'+str(self.agent_id)
+
     def agent_cleanup(self):
         print 'saving log to file...'
-        name = self.save_path+'/'+str(self.name)+'_log.'+str(self.agent_id)
+        name = '/'.join((self.save_path, self.file_name() + '.log'))
         with open(name,'wb') as f:
             pickle.dump(self.log,f)
         
@@ -180,21 +206,15 @@ class AbstractAgent(Agent,object):
             self._n_int_actions = np.prod(
                 self.act_range[self._n_double_act_dims:])
             print spec
-            print 'Double state variables:'
-            print len(TaskSpec.getDoubleObservations())
-            print 'Integer state variables:'
-            print len(TaskSpec.getIntObservations())            
-            print 'Double Actions dimensions:'
-            print self.double_action_dims()
-            print 'Integer Action dimensions:'
-            print self.int_action_dims()
-            print '#number of Integer Actions'
-            print self.num_actions()
+            # print 'Double state variables:'
+            # print len(TaskSpec.getDoubleObservations())
+            # print 'Integer state variables:'
+            # print len(TaskSpec.getIntObservations())            
+            # print 'Double Actions dimensions:'
+            # print self.double_action_dims()
+            # print 'Integer Action dimensions:'
+            # print self.int_action_dims()
+            # print '#number of Integer Actions'
+            # print self.num_actions()
         else:
             print "Task Spec could not be parsed: "+spec
-            
-
-
-
-
-

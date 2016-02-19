@@ -85,7 +85,8 @@ class RAMALEFeatures(ALEFeatures):
     def phi_idx(self,s):
         #represent 128 byte ram vector as 1024 bit vector
         s_bits = np.unpackbits(s)
-        r_idx = np.nonzero(s_bits)[0]
+        # r_idx = np.nonzero(s_bits)[0]
+        r_idx = np.flatnonzero(s_bits)
         p_idx = self.pairwise(r_idx,s_bits.size)
         return np.r_[r_idx,(s_bits.size+p_idx)].astype('uint')
 

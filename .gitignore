@@ -1,0 +1,5 @@
+*.pyc
+roms
+logs
+results
+**/*.ipynb_checkpoints
