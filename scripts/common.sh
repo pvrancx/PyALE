@@ -43,6 +43,9 @@ fi
 # More elaborate. Kill thoroughly.
 # trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
 
+# This directory will holds results
+mkdir -p "$LOGDIR/results"
+
 # Keep a handy simlink to the latest results for debugging purposes
 ln -sfT $LOGDIR "${BASEDIR}/logs/last_${EXP_NAME}_${GAME}"
 
@@ -50,7 +53,6 @@ cd $RLDIR
 #start rlglue
 rl_glue&
 #run agent
-mkdir -p "$LOGDIR/results"
 $PYTHON $PROFILE_STRING $AGENT $AGENT_OPTIONS --savepath "$LOGDIR/results" > $LOGDIR/agent.log 2>&1 &
 #run experiment
 $PYTHON $EXPERIMENT $EXPERIMENT_OPTIONS >> $LOGDIR/experiment.log 2>&1 &
