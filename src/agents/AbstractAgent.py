@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 """
 Created on Thu Feb 19 12:50:45 2015
@@ -16,9 +15,6 @@ import sys
 from rlglue.agent.Agent import Agent
 from rlglue.utils import TaskSpecVRLGLUE3
 from rlglue.types import Action
-
-#from util.log import Logger
-
 
 #convert agents to new python classes
 class AbstractAgent(Agent,object):
@@ -68,7 +64,6 @@ class AbstractAgent(Agent,object):
         print "Started agent with arguments:"
         print ' '.join(sys.argv)
         self.report_parameters()
-
 
     def parameters(self):
         args_dict = {}

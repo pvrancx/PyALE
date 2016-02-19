@@ -16,7 +16,6 @@ class ALEAgent(AbstractAgent):
     Base class for ALE RL GLUE agents
     '''
     actions = None #action set to use
-    base_reward = None #reward reference, needed for normalization
     
     @classmethod
     def register_with_parser(cls, parser):
@@ -29,6 +28,7 @@ class ALEAgent(AbstractAgent):
 
     def __init__(self, args):
         super(ALEAgent,self).__init__(args)
+        self.base_reward = None # reward reference, needed for normalization
         if args.actions is None:
             self.actions = np.arange(18) #18 buttons
         else:
@@ -114,9 +114,3 @@ class ALEAgent(AbstractAgent):
          super(ALEAgent,self).agent_step(reward, observation)
          act=np.random.choice(self.actions)
          return self.create_action(act)
-    
-            
-
-    
-    #def agent_message(self,inMessage):
-    #    return "I don't know how to respond to your message"

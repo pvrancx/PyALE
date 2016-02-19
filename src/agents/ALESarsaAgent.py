@@ -11,6 +11,8 @@ from rlglue.agent import AgentLoader as AgentLoader
 
 from util.ALEFeatures import BasicALEFeatures,RAMALEFeatures
 from agents.ALEAgent import ALEAgent
+from agents.BasicALEAgent import BasicALEAgent
+from agents.RAMALEAgent import RAMALEAgent
 
 import numpy as np
 
@@ -28,15 +30,15 @@ class ALESarsaAgent(ALEAgent):
                         help='trace decay')
         parser.add_argument('--eps', type=float, default=0.05,
                         help='exploration rate')
-        parser.add_argument('--features', metavar='F', type=str, default='RAM',
-                        help='features to use: RAM or BASIC')
-        parser.add_argument('--disable-traces', dest='no_traces', action='store_true', help='')
-        # parser.add_argument('--enable-traces', dest='no_traces', action='store_false', help='')
+        parser.add_argument('--disable-traces', dest='no_traces', action='store_true', 
+                        help='disables traces')
+        parser.add_argument('--enable-traces', dest='no_traces', action='store_false',
+                        help='enables traces (default behavior)')
         parser.set_defaults(no_traces=False)
 
     def __init__(self, args):
         super(ALESarsaAgent, self).__init__(args)
-        self.name='SARSA'
+        self.name = 'SARSA'
         self.gamma = args.gamma
         self.alpha = args.alpha
         self.alpha0 = args.alpha
@@ -153,33 +155,17 @@ class ALESarsaAgent(ALEAgent):
         super(ALESarsaAgent,self).agent_end(reward)
         self.step(reward)
         
-class BasicALESarsaAgent(ALESarsaAgent):
-    def __init__(self, args, bg_file='../data/space_invaders/background.pkl'):
-        super(BasicALESarsaAgent,self).__init__(args)
-        self.background = bg_file
-        
-    def create_projector(self):
-        return BasicALEFeatures(num_tiles=np.array([14,16]),
-            background_file = self.background, secam=True )
- 
-    def get_data(self,obs):
-        return self.get_frame_data(obs)
 
-    def file_name(self):
-        return str(self.name)+'_BASIC_'+str(self.agent_id)
+class BasicALESarsaAgent(BasicALEAgent, ALESarsaAgent):
+    pass
     
-class RAMALESarsaAgent(ALESarsaAgent):
-    def create_projector(self):
-        return RAMALEFeatures()
-        
-    def get_data(self,obs):
-        return self.get_ram_data(obs)
-
-    def file_name(self):
-        return str(self.name)+'_RAM_'+str(self.agent_id)
+class RAMALESarsaAgent(RAMALEAgent, ALESarsaAgent):
+    pass
         
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description='run Sarsa Agent')
+    parser.add_argument('--features', metavar='F', type=str, default='RAM',
+                    help='features to use: RAM or BASIC')
     ALESarsaAgent.register_with_parser(parser)
     args = parser.parse_args()
     if args.features == 'RAM':
