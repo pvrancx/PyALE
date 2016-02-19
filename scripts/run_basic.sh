@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#Experimental configuration
+# Experimental configuration
+# Can be overwritten from commandline
 RANDOM_SEED=${RANDOM_SEED:-"42"}
 DISABLE_TRACES=${DISABLE_TRACES:-""}
 
