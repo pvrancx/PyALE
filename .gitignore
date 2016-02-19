@@ -1,5 +1,5 @@
 *.pyc
 roms
 logs
-logs_to_keep
+results
 **/*.ipynb_checkpoints
